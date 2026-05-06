@@ -1,0 +1,21 @@
+{
+  "name": "TokenScope",
+  "short_name": "TokenScope",
+  "description": "Find the Best AI Model Access — search, compare, and review AI model providers worldwide",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a1a",
+  "theme_color": "#6366f1",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    }
+  ]
+}

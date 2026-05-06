@@ -1,0 +1,51 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files — CRITICAL: never commit these
+.env
+.env*.local
+.env.production
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# Temporary/dev scripts (not part of the app)
+check-db.mjs
+migrate-id-to-text.mjs
+seed.mjs
+run-seed.mjs
+run-seed.ps1
+run-seed2.ps1
+
+# Task summaries (development artifacts)
+task-summary_*.md
+
+# Supabase generated types (regenerate with `supabase gen types`)
+src/lib/database.types.ts
