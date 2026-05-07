@@ -2,6 +2,12 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "regions": ["iad1", "hnd1"],
+  "crons": [
+    {
+      "path": "/api/cron/update-channels",
+      "schedule": "0 6 * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)\\.(ico|png|jpg|jpeg|svg|gif|webp|woff2|woff|ttf|eot)",

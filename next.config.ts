@@ -11,8 +11,8 @@ const ContentSecurityPolicy = [
   "font-src 'self' fonts.gstatic.com",
   // Images: self + data URIs + blob + HTTPS images
   "img-src 'self' data: blob: https:",
-  // Connections: self + Vercel + Supabase + analytics
-  "connect-src 'self' va.vercel-insights.com https://*.supabase.co",
+  // Connections: self + Vercel + Supabase + analytics + channel data sources
+  "connect-src 'self' va.vercel-insights.com https://*.supabase.co https://openrouter.ai https://api.together.xyz https://api.packycodes.com https://4sapi.com https://api.147api.com https://api.apiyi.com https://api.aihubmix.com https://api.laozhang.ai https://api.ohmygpt.com https://api.linkapi.pro https://api.cubence.com https://api.i7relay.com https://hvoy.ai https://raw.githubusercontent.com",
   // Frames: deny all
   "frame-src 'none'",
   // Objects: deny all
