@@ -120,19 +120,19 @@ async function syncModels(
   const modelsTable: any = sb.from("models");
 
   // Get existing models for this channel
-  const { data: existing, error: fetchErr } = await modelsTable
-    .select("slug")
+  const { data: existing, error: fetchErr } = modelsTable
+    .select("name")
     .eq("channel_id", channelId);
 
   if (fetchErr) throw fetchErr;
 
-  const existingSlugs = new Set((existing || []).map((m: any) => m.slug));
+  const existingNames = new Set((existing || []).map((m: any) => m.name));
   const toInsert: Record<string, any>[] = [];
   const toUpdate: Record<string, any>[] = [];
 
   for (const m of newModels) {
     const sanitized = sanitizeModel({ ...m, channel_id: channelId });
-    if (existingSlugs.has(sanitized.slug)) {
+    if (existingNames.has(sanitized.name)) {
       toUpdate.push(sanitized);
     } else {
       toInsert.push(sanitized);
@@ -149,7 +149,7 @@ async function syncModels(
         // @ts-ignore
         const { error: e2 } = await modelsTable.insert(model);
         if (e2) {
-          console.error(`[cron] Model insert failed (${model.slug}):`, e2.message);
+          console.error(`[cron] Model insert failed (${model.name}):`, e2.message);
         } else {
           stats.modelsAdded++;
         }
@@ -167,16 +167,15 @@ async function syncModels(
         context_window: model.context_window,
         is_free: model.is_free,
         free_quota: model.free_quota,
-        updated_at: new Date().toISOString(),
       };
     // @ts-ignore
     const { error } = await modelsTable
       .update(updateData)
       .eq("channel_id", channelId)
-      .eq("slug", model.slug);
+      .eq("name", model.name);
 
     if (error) {
-      console.error(`[cron] Model update failed (${model.slug}):`, error.message);
+      console.error(`[cron] Model update failed (${model.name}):`, error.message);
     } else {
       stats.modelsUpdated++;
     }
@@ -204,16 +203,16 @@ async function logDiscoveries(
 
 /** Only keep fields that exist in the channels table */
 function sanitizeChannel(ch: Record<string, any>): Record<string, any> {
+  // Must match actual channels table columns
   const allowed = [
     "id", "name", "type", "description", "description_en",
     "url", "doc_url", "status", "cert_level", "region",
     "tags", "tags_en", "payment_methods",
+    "free_tier_available", "free_tier_description", "free_tier_description_en",
+    "avg_latency", "uptime_30d", "review_count", "monthly_active_users",
     "rating_overall", "rating_stability", "rating_speed", "rating_service",
-    "rating_value", "rating_count", "avg_latency", "uptime_30d",
-    "review_count", "free_tier_available", "free_quota_info",
-    "min_topup", "pricing_notes", "pricing_notes_en",
-    "features", "features_en", "pros", "cons",
-    "featured", "updated_at",
+    "rating_value", "rating_count",
+    "featured", "created_at", "updated_at",
   ];
   const out: Record<string, any> = {};
   for (const key of allowed) {
@@ -223,14 +222,16 @@ function sanitizeChannel(ch: Record<string, any>): Record<string, any> {
   if (!out.id) throw new Error("Channel missing id");
   if (!out.name) out.name = out.id;
   if (!out.type) out.type = "relay";
+  if (!out.url) throw new Error(`Channel ${out.id} missing required field: url`);
   if (!out.updated_at) out.updated_at = new Date().toISOString();
   return out;
 }
 
 /** Only keep fields that exist in the models table */
 function sanitizeModel(m: Record<string, any>): Record<string, any> {
+  // Must match actual models table columns
   const allowed = [
-    "channel_id", "name", "slug", "category",
+    "channel_id", "name", "category",
     "input_price_per_1m", "output_price_per_1m",
     "is_free", "free_quota", "context_window",
   ];
@@ -238,6 +239,5 @@ function sanitizeModel(m: Record<string, any>): Record<string, any> {
   for (const key of allowed) {
     if (m[key] !== undefined) out[key] = m[key];
   }
-  if (!out.slug && out.name) out.slug = out.name;
   return out;
 }

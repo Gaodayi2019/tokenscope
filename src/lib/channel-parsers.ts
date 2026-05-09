@@ -27,15 +27,21 @@ export async function parseRelayModels(
     const data = await fetchJson<{ data: Array<{ id: string }> }>(apiUrl, { timeoutMs: 10000 });
     if (!data?.data || !Array.isArray(data.data)) return null;
 
+    // Derive site URL from API URL (e.g. https://api.example.com/v1/models → https://example.com)
+    const siteUrl = apiUrl
+      .replace(/\/v1\/models\/?$/, '')
+      .replace(/\/v1\/?$/, '')
+      .replace(/api\./, '');
+
     const channel: Record<string, any> = {
       id: channelId, name: channelName, type: 'relay',
-      status: 'online', updated_at: new Date().toISOString(),
+      url: siteUrl, status: 'online', updated_at: new Date().toISOString(),
     };
 
     const models = data.data
       .filter(m => m.id && m.id !== '')
       .map(m => ({
-        channel_id: channelId, name: m.id, slug: m.id,
+        channel_id: channelId, name: m.id,
         category: guessCategory(m.id),
       }));
 
@@ -78,8 +84,7 @@ export async function parseOpenRouter(): Promise<ParsedChannelData | null> {
         const out = parsePriceToPer1M(p.completion);
         const isFree = inp === 0 && out === 0;
         models.push({
-          channel_id: 'openrouter', name: m.name || m.id, slug: m.id,
-          category: guessCategory(m.id, m.name),
+          channel_id: 'openrouter', name: m.id, category: guessCategory(m.id, m.name),
           input_price_per_1m: inp, output_price_per_1m: out,
           is_free: isFree, free_quota: isFree ? 'Free on OpenRouter' : null,
           context_window: m.context_length || null,
