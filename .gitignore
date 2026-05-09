@@ -48,4 +48,5 @@ run-seed2.ps1
 task-summary_*.md
 
 # Supabase generated types (regenerate with `supabase gen types`)
-src/lib/database.types.ts
+# NOTE: committed to git for Vercel build - regenerate after schema changes
+# src/lib/database.types.ts
