@@ -5,7 +5,14 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useI18n } from "@/i18n/context";
 
-const guides = [
+const categoryIcons: Record<string, string> = {
+  "入门": "📘", "Getting Started": "📘",
+  "开发": "💻", "Development": "💻",
+  "省钱": "💰", "Saving": "💰",
+  "安全": "🔒", "Security": "🔒",
+};
+
+const guidesZh = [
   {
     id: "what-is-relay",
     category: "入门",
@@ -146,14 +153,159 @@ RELAY_API_KEY=relay-xxx
   },
 ];
 
-const categories = ["全部", ...Array.from(new Set(guides.map((g) => g.category)))];
+const guidesEn = [
+  {
+    id: "what-is-relay",
+    category: "Getting Started",
+    title: "What is an API Relay?",
+    summary: "Understand how relays work, when to use them, and the risks",
+    content: `An API Relay is a proxy service between developers and LLM providers. You send requests to the relay, which forwards them to OpenAI/Claude/Google etc., and returns the response.
+
+**Why use a relay?**
+- 🌍 Direct access to OpenAI etc. is unreliable in some regions; relays provide stable routes
+- 💰 Some relays support local payment methods, no credit card needed
+- 🎁 Many relays offer free credits for trial
+- 📦 One API Key for multiple models, simplified management
+
+**Potential risks:**
+- Data passes through a third party — choose trusted services
+- Relays may change pricing or go offline without notice
+- Free credits may have limits or change over time
+
+**Tips:** Prioritize relays with verified badges, long operating history, and good user reviews. TokenScope's rating and review system can help you filter.`,
+  },
+  {
+    id: "free-models",
+    category: "Getting Started",
+    title: "Complete Guide to Free Models",
+    summary: "All the ways to access AI at zero cost",
+    content: `**Option 1: Free models from major providers**
+- Google Gemini: Generous free quota, supports multimodal
+- Alibaba Qwen: Direct access in China, generous free tier
+- Baidu ERNIE: Basic models free to use
+- Zhipu GLM: ChatGLM series has free API access
+
+**Option 2: Free credits from relays**
+- Most relays give new users $0.5-5 in credits
+- Some relays offer daily free API calls
+
+**Option 3: Self-hosted open-source models**
+- Ollama for local Llama, Qwen, etc.
+- HuggingFace Spaces for free trials
+- Cloudflare Workers AI free tier
+
+**Best practices:**
+1. Use free credits to test API compatibility first
+2. Small projects can often work with free models alone
+3. For production, pair with a paid plan as fallback`,
+  },
+  {
+    id: "api-compatibility",
+    category: "Development",
+    title: "API Compatibility & Migration Guide",
+    summary: "OpenAI format is the de facto standard — switching channels is often a one-line change",
+    content: `**Good news:** Most relays and direct services are compatible with the OpenAI API format, making migration extremely low-cost.
+
+**Just change base_url:**
+\`\`\`python
+# Original OpenAI
+client = OpenAI(api_key="sk-xxx", base_url="https://api.openai.com/v1")
+
+# Switch to relay — only change base_url and api_key
+client = OpenAI(api_key="relay-key-xxx", base_url="https://relay.example.com/v1")
+\`\`\`
+
+**Caveats:**
+- Some model names may differ (e.g. gpt-4o → gpt4o)
+- Streaming response format may vary slightly
+- Advanced features (Vision/Function Calling) compatibility needs verification
+- Error codes and messages may differ
+
+**Migration checklist:**
+1. ✅ base_url and api_key updated
+2. ✅ Model names adapted
+3. ✅ Streaming output working
+4. ✅ Error handling in place
+5. ✅ Timeout settings adjusted (relays may have higher latency)`,
+  },
+  {
+    id: "price-compare",
+    category: "Saving",
+    title: "How to Choose the Most Cost-Effective Plan?",
+    summary: "Optimal recommendations for different usage levels",
+    content: `**Light users (< 1M tokens/month):**
+- Free models as primary (Gemini/Qwen)
+- Relay free credits are sufficient
+- Monthly cost: $0
+
+**Medium users (1M-10M tokens/month):**
+- Relays are the best value
+- Compare with direct pricing — relays are typically 30-60% cheaper
+- Monthly cost: $7-40
+
+**Heavy users (> 10M tokens/month):**
+- Hybrid: direct + relay
+- Use direct for stability, relay as fallback
+- Consider Azure or enterprise plans
+- Monthly cost: $40+
+
+**Money-saving tips:**
+1. Use TokenScope to compare prices across channels
+2. Use small models for tasks that don't need large ones (GPT-4o-mini, etc.)
+3. Set max_tokens properly to avoid waste
+4. Cache repeated request results
+5. Use batch requests instead of individual calls`,
+  },
+  {
+    id: "security",
+    category: "Security",
+    title: "API Key Security Best Practices",
+    summary: "Protect your keys and data",
+    content: `**Basic rules:**
+- ❌ Never expose API Keys in frontend code
+- ❌ Never commit Keys to Git repos
+- ✅ Store Keys in environment variables
+- ✅ Rotate API Keys regularly
+- ✅ Use different Keys for different projects
+
+**Relay-specific risks:**
+- Your request content passes through relay servers
+- Choose services that support no-log policies
+- For sensitive data (medical, legal, etc.), use direct access
+- Check the relay's privacy policy and terms of service
+
+**At the code level:**
+\`\`\`bash
+# .env.local (don't commit to Git!)
+OPENAI_API_KEY=sk-xxx
+RELAY_API_KEY=relay-xxx
+\`\`\`
+
+\`\`\`gitignore
+# .gitignore
+.env.local
+.env*.local
+\`\`\`
+
+**Monitoring:**
+- Check API usage regularly for anomalies
+- Set budget limits to prevent unexpected costs
+- Enable two-factor authentication for accounts`,
+  },
+];
+
+const guidesByLocale = { zh: guidesZh, en: guidesEn };
 
 export default function GuidesPage() {
-  const { t } = useI18n();
-  const [activeCat, setActiveCat] = useState("全部");
+  const { locale, t } = useI18n();
+  const guides = guidesByLocale[locale];
+  const [activeCat, setActiveCat] = useState(locale === "zh" ? "全部" : "All");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const filtered = activeCat === "全部" ? guides : guides.filter((g) => g.category === activeCat);
+  const allLabel = locale === "zh" ? "全部" : "All";
+  const categories = [allLabel, ...Array.from(new Set(guides.map((g) => g.category)))];
+
+  const filtered = activeCat === allLabel ? guides : guides.filter((g) => g.category === activeCat);
 
   return (
     <>

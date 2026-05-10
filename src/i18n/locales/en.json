@@ -249,5 +249,39 @@
     "resetPasswordLinkExpired": "This reset link has expired or is invalid. Please request a new one.",
     "passwordMinLength": "Password must be at least 6 characters"
   },
+  "badge": {
+    "relay": "Relay",
+    "proxy": "Token Proxy",
+    "free-model": "Free Models",
+    "direct": "Direct",
+    "hosting": "Hosting"
+  },
+  "card": {
+    "online": "Online",
+    "offline": "Offline",
+    "unstable": "Unstable",
+    "unknown": "Unknown",
+    "certVerified": "✓ Verified",
+    "certPremium": "★ Premium",
+    "latency": "Latency",
+    "uptime": "Uptime",
+    "reviews": "reviews",
+    "free": "Free",
+    "noData": "No channel data for this type"
+  },
+  "ranking": {
+    "overall": "Overall",
+    "stability": "Stability",
+    "speed": "Speed",
+    "value": "Value",
+    "price": "Lowest",
+    "all": "All",
+    "free-model": "Free Models",
+    "direct": "Direct",
+    "relay": "Relay",
+    "proxy": "Proxy",
+    "hosting": "Hosting",
+    "lowestPrice": "from"
+  },
   "common": { "loading": "Loading...", "noData": "No data", "search": "Search", "filter": "Filter", "sort": "Sort", "more": "More" }
 }

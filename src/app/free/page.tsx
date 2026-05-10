@@ -13,7 +13,7 @@ const categoryIcons: Record<string, string> = {
 };
 
 export default function FreePage() {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState<string>("all");
 
@@ -89,7 +89,7 @@ export default function FreePage() {
           })}
         </div>
 
-        <p className="mb-4 text-sm text-muted">找到 <span className="font-medium text-foreground">{filtered.length}</span> 个免费模型</p>
+        <p className="mb-4 text-sm text-muted">{locale === "zh" ? `找到 ` : `Found `}<span className="font-medium text-foreground">{filtered.length}</span>{locale === "zh" ? " 个免费模型" : " free models"}</p>
 
         {filtered.length > 0 ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -116,9 +116,9 @@ export default function FreePage() {
         ) : (
           <div className="py-16 text-center">
             <div className="text-5xl mb-4">🎁</div>
-            <h3 className="text-lg font-semibold text-foreground">没有找到匹配的免费模型</h3>
+            <h3 className="text-lg font-semibold text-foreground">{locale === "zh" ? "没有找到匹配的免费模型" : "No matching free models found"}</h3>
             <button onClick={() => { setSearch(""); setCatFilter("all"); }} className="mt-4 rounded-xl bg-primary px-5 py-2 text-sm text-white hover:bg-primary/90">
-              清除筛选
+              {locale === "zh" ? "清除筛选" : "Clear Filters"}
             </button>
           </div>
         )}

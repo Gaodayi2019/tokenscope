@@ -51,12 +51,12 @@ interface Submission {
   created_at: string;
 }
 
-const typeLabels: Record<string, string> = {
-  relay: "🔄 中转站",
-  proxy: "🎫 代理",
-  "free-model": "🎁 免费模型",
-  direct: "🏢 直连",
-  hosting: "☁️ 托管",
+const typeLabelsKeys: Record<string, string> = {
+  relay: "relay",
+  proxy: "proxy",
+  "free-model": "free-model",
+  direct: "direct",
+  hosting: "hosting",
 };
 
 // status labels will be resolved via i18n at render time
@@ -269,7 +269,7 @@ export default function AdminPage() {
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <h3 className="font-semibold text-foreground">{sub.name}</h3>
-                            <span className="text-sm">{typeLabels[sub.type] || sub.type}</span>
+                            <span className="text-sm">{t.badge[typeLabelsKeys[sub.type] as keyof typeof t.badge] || sub.type}</span>
                             <span className={`text-xs font-medium ${st.cls}`}>{statusLabelMap[sub.status] || t.admin.pending}</span>
                           </div>
                           <p className="text-sm text-muted mb-2">{sub.description || t.admin.noDesc}</p>
@@ -334,11 +334,11 @@ export default function AdminPage() {
                 className="rounded-xl border border-card-border bg-surface px-3 py-2 text-sm text-foreground"
               >
                 <option value="">{t.admin.filterType}</option>
-                <option value="relay">🔄 中转站</option>
-                <option value="proxy">🎫 代理</option>
-                <option value="free-model">🎁 免费模型</option>
-                <option value="direct">🏢 直连</option>
-                <option value="hosting">☁️ 托管</option>
+                <option value="relay">🔄 {t.badge.relay}</option>
+                <option value="proxy">🎫 {t.badge.proxy}</option>
+                <option value="free-model">🎁 {t.badge["free-model"]}</option>
+                <option value="direct">🏢 {t.badge.direct}</option>
+                <option value="hosting">☁️ {t.badge.hosting}</option>
               </select>
               <select
                 value={chStatusFilter}
@@ -380,7 +380,7 @@ export default function AdminPage() {
                         <div className="flex items-center gap-3 flex-1 min-w-0">
                           <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${statusDot[ch.status] || "bg-gray-400"}`} />
                           <h3 className="font-semibold text-foreground truncate">{ch.name}</h3>
-                          <span className="text-xs bg-surface px-2 py-0.5 rounded-full">{typeLabels[ch.type] || ch.type}</span>
+                          <span className="text-xs bg-surface px-2 py-0.5 rounded-full">{t.badge[typeLabelsKeys[ch.type] as keyof typeof t.badge] || ch.type}</span>
                           <span className="text-xs text-muted">{t.admin.modelCount}: {ch.model_count ?? 0}</span>
                           {ch.featured && <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">⭐ {t.admin.featured}</span>}
                         </div>
@@ -420,7 +420,7 @@ export default function AdminPage() {
                     <div className="space-y-2">
                       <div><label className="text-xs text-muted">{t.admin.name}</label><input value={editingChannel.name} onChange={(e) => setEditingChannel({...editingChannel, name: e.target.value})} className="w-full rounded-lg border border-card-border bg-surface px-3 py-1.5 text-sm text-foreground" /></div>
                       <div className="flex gap-2">
-                        <div className="flex-1"><label className="text-xs text-muted">{t.admin.type}</label><select value={editingChannel.type} onChange={(e) => setEditingChannel({...editingChannel, type: e.target.value})} className="w-full rounded-lg border border-card-border bg-surface px-3 py-1.5 text-sm text-foreground"><option value="relay">中转站</option><option value="proxy">代理</option><option value="free-model">免费模型</option><option value="direct">直连</option><option value="hosting">托管</option></select></div>
+                        <div className="flex-1"><label className="text-xs text-muted">{t.admin.type}</label><select value={editingChannel.type} onChange={(e) => setEditingChannel({...editingChannel, type: e.target.value})} className="w-full rounded-lg border border-card-border bg-surface px-3 py-1.5 text-sm text-foreground"><option value="relay">{t.badge.relay}</option><option value="proxy">{t.badge.proxy}</option><option value="free-model">{t.badge["free-model"]}</option><option value="direct">{t.badge.direct}</option><option value="hosting">{t.badge.hosting}</option></select></div>
                         <div className="flex-1"><label className="text-xs text-muted">{t.admin.status}</label><select value={editingChannel.status} onChange={(e) => setEditingChannel({...editingChannel, status: e.target.value})} className="w-full rounded-lg border border-card-border bg-surface px-3 py-1.5 text-sm text-foreground"><option value="online">{t.admin.online}</option><option value="offline">{t.admin.offline}</option><option value="unstable">{t.admin.unstable}</option></select></div>
                       </div>
                       <div><label className="text-xs text-muted">{t.admin.url}</label><input value={editingChannel.url} onChange={(e) => setEditingChannel({...editingChannel, url: e.target.value})} className="w-full rounded-lg border border-card-border bg-surface px-3 py-1.5 text-sm text-foreground" /></div>

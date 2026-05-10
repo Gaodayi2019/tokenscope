@@ -3,25 +3,43 @@
 import { useState } from "react";
 import type { Channel, ChannelType, ChannelRatings } from "@/types";
 import { ChannelTypeBadge } from "./ChannelTypeBadge";
+import { useI18n } from "@/i18n/context";
 
 type SortKey = "overall" | "stability" | "speed" | "value" | "price";
 
-const sortLabels: Record<SortKey, { zh: string; icon: string }> = {
-  overall:   { zh: "综合",   icon: "🏆" },
-  stability: { zh: "稳定性", icon: "🛡️" },
-  speed:     { zh: "速度",   icon: "⚡" },
-  value:     { zh: "性价比", icon: "💰" },
-  price:     { zh: "最低价", icon: "🏷️" },
+const sortIcons: Record<SortKey, string> = {
+  overall:   "🏆",
+  stability: "🛡️",
+  speed:     "⚡",
+  value:     "💰",
+  price:     "🏷️",
 };
 
-const typeTabs: { type: ChannelType | "all"; zh: string; icon: string }[] = [
-  { type: "all",        zh: "全部",   icon: "🌍" },
-  { type: "free-model", zh: "免费模型", icon: "🎁" },
-  { type: "direct",     zh: "直连",   icon: "⚡" },
-  { type: "relay",      zh: "中转站", icon: "🔄" },
-  { type: "proxy",      zh: "代理",   icon: "🎫" },
-  { type: "hosting",    zh: "托管",   icon: "☁️" },
-];
+const sortKeyMap: Record<SortKey, "overall" | "stability" | "speed" | "value" | "price"> = {
+  overall:   "overall",
+  stability: "stability",
+  speed:     "speed",
+  value:     "value",
+  price:     "price",
+};
+
+const typeIcons: Record<ChannelType | "all", string> = {
+  all:        "🌍",
+  "free-model": "🎁",
+  direct:     "⚡",
+  relay:      "🔄",
+  proxy:      "🎫",
+  hosting:    "☁️",
+};
+
+const typeKeyMap: Record<ChannelType | "all", "all" | "free-model" | "direct" | "relay" | "proxy" | "hosting"> = {
+  all:        "all",
+  "free-model": "free-model",
+  direct:     "direct",
+  relay:      "relay",
+  proxy:      "proxy",
+  hosting:    "hosting",
+};
 
 function getLowestPrice(ch: Channel): number {
   const prices = ch.models
@@ -51,6 +69,7 @@ const medalColors = [
 ];
 
 export function RankingBoard({ channels }: { channels: Channel[] }) {
+  const { locale, t } = useI18n();
   const [activeType, setActiveType] = useState<ChannelType | "all">("all");
   const [sortBy, setSortBy] = useState<SortKey>("overall");
 
@@ -67,20 +86,21 @@ export function RankingBoard({ channels }: { channels: Channel[] }) {
     <div>
       {/* Type Tabs */}
       <div className="flex flex-wrap gap-2">
-        {typeTabs.map((tab) => {
-          const isActive = activeType === tab.type;
+        {(Object.keys(typeKeyMap) as (ChannelType | "all")[]).map((type) => {
+          const isActive = activeType === type;
+          const label = t.ranking[typeKeyMap[type]];
           return (
             <button
-              key={tab.type}
-              onClick={() => setActiveType(tab.type)}
+              key={type}
+              onClick={() => setActiveType(type)}
               className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-medium transition-all ${
                 isActive
                   ? "bg-primary text-white shadow-lg shadow-primary/20"
                   : "bg-surface text-muted hover:bg-surface-hover hover:text-foreground"
               }`}
             >
-              <span>{tab.icon}</span>
-              <span>{tab.zh}</span>
+              <span>{typeIcons[type]}</span>
+              <span>{label}</span>
             </button>
           );
         })}
@@ -88,7 +108,7 @@ export function RankingBoard({ channels }: { channels: Channel[] }) {
 
       {/* Sort Buttons */}
       <div className="mt-4 flex flex-wrap gap-2">
-        {(Object.keys(sortLabels) as SortKey[]).map((key) => {
+        {(Object.keys(sortIcons) as SortKey[]).map((key) => {
           const isActive = sortBy === key;
           return (
             <button
@@ -100,8 +120,8 @@ export function RankingBoard({ channels }: { channels: Channel[] }) {
                   : "bg-surface text-muted hover:text-foreground"
               }`}
             >
-              <span>{sortLabels[key].icon}</span>
-              <span>{sortLabels[key].zh}</span>
+              <span>{sortIcons[key]}</span>
+              <span>{t.ranking[sortKeyMap[key]]}</span>
             </button>
           );
         })}
@@ -136,17 +156,17 @@ export function RankingBoard({ channels }: { channels: Channel[] }) {
                   </span>
                   <ChannelTypeBadge type={ch.type} />
                   {ch.freeTier?.available && (
-                    <span className="rounded bg-success/10 px-1.5 py-0.5 text-[10px] font-medium text-success">免费</span>
+                    <span className="rounded bg-success/10 px-1.5 py-0.5 text-[10px] font-medium text-success">{t.card.free}</span>
                   )}
                 </div>
                 <div className="mt-1 flex items-center gap-4 text-xs text-muted">
-                  <span>延迟 {ch.stats.avgLatency}ms</span>
-                  <span>可用率 {ch.stats.uptime30d}%</span>
+                  <span>{t.card.latency} {ch.stats.avgLatency}ms</span>
+                  <span>{t.card.uptime} {ch.stats.uptime30d}%</span>
                   {lowest !== Infinity && (
                     <span>最低 ${lowest.toFixed(2)}/1M</span>
                   )}
                   {ch.freeTier?.available && (
-                    <span className="text-success">{ch.freeTier.description}</span>
+                    <span className="text-success">{locale === "zh" ? ch.freeTier.description : (ch.freeTier as any).descriptionEn || ch.freeTier.description}</span>
                   )}
                 </div>
               </div>
@@ -154,7 +174,7 @@ export function RankingBoard({ channels }: { channels: Channel[] }) {
               {/* Score */}
               <div className="shrink-0 w-28">
                 <div className="flex items-baseline justify-between">
-                  <span className="text-xs text-muted">{sortLabels[sortBy].zh}</span>
+                  <span className="text-xs text-muted">{t.ranking[sortKeyMap[sortBy]]}</span>
                   <span className="text-lg font-bold text-foreground">
                     {sortBy === "price"
                       ? lowest === Infinity
@@ -179,7 +199,7 @@ export function RankingBoard({ channels }: { channels: Channel[] }) {
               <div className="hidden lg:flex shrink-0 gap-3">
                 {(["stability", "speed", "value"] as const).map((k) => (
                   <div key={k} className="w-16 text-center">
-                    <div className="text-[10px] text-muted">{sortLabels[k].zh}</div>
+                    <div className="text-[10px] text-muted">{t.ranking[k as keyof typeof t.ranking]}</div>
                     <div className="text-sm font-semibold text-foreground">{ch.ratings[k].toFixed(1)}</div>
                   </div>
                 ))}
@@ -190,7 +210,7 @@ export function RankingBoard({ channels }: { channels: Channel[] }) {
 
         {sorted.length === 0 && (
           <div className="py-12 text-center text-muted">
-            暂无该类型的渠道数据
+            {t.card.noData}
           </div>
         )}
       </div>

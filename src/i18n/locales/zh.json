@@ -249,5 +249,39 @@
     "resetPasswordLinkExpired": "重置链接已失效或不存在，请重新申请重置邮件",
     "passwordMinLength": "密码长度至少6位"
   },
+  "badge": {
+    "relay": "中转站",
+    "proxy": "Token代理",
+    "free-model": "免费模型",
+    "direct": "直连",
+    "hosting": "模型托管"
+  },
+  "card": {
+    "online": "在线",
+    "offline": "离线",
+    "unstable": "不稳定",
+    "unknown": "未知",
+    "certVerified": "✓ 已认证",
+    "certPremium": "★ 高级认证",
+    "latency": "延迟",
+    "uptime": "可用率",
+    "reviews": "评价",
+    "free": "免费",
+    "noData": "暂无该类型的渠道数据"
+  },
+  "ranking": {
+    "overall": "综合",
+    "stability": "稳定性",
+    "speed": "速度",
+    "value": "性价比",
+    "price": "最低价",
+    "all": "全部",
+    "free-model": "免费模型",
+    "direct": "直连",
+    "relay": "中转站",
+    "proxy": "代理",
+    "hosting": "托管",
+    "lowestPrice": "最低"
+  },
   "common": { "loading": "加载中...", "noData": "暂无数据", "search": "搜索", "filter": "筛选", "sort": "排序", "more": "更多" }
 }

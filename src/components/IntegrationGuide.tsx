@@ -1,16 +1,42 @@
 "use client";
 
 import { Channel, ChannelType } from "@/types";
+import { useI18n } from "@/i18n/context";
 
-const typeLabels: Record<ChannelType, string> = {
-  relay: "中转站",
-  proxy: "Token代理",
-  "free-model": "免费模型",
-  direct: "官方直连",
-  hosting: "托管服务",
+const typeQuickStepsEn: Record<ChannelType, string[]> = {
+  relay: [
+    "1️⃣ Sign up and get your API Key",
+    "2️⃣ Replace the API Base URL with the relay address",
+    "3️⃣ Add your API Key to the request header",
+    "4️⃣ Model names match OpenAI — just call directly",
+  ],
+  proxy: [
+    "1️⃣ Purchase or get Token credits",
+    "2️⃣ Use the provided API Key to replace the original",
+    "3️⃣ Base URL may differ from official — follow docs",
+    "4️⃣ Compatible with OpenAI SDK format",
+  ],
+  "free-model": [
+    "1️⃣ Sign up for the platform",
+    "2️⃣ Get a free API Key from the console",
+    "3️⃣ Configure Base URL and model name per docs",
+    "4️⃣ Note free quota and rate limits",
+  ],
+  direct: [
+    "1️⃣ Register with the official provider (ID verification may be required)",
+    "2️⃣ Enable API service and get your Key",
+    "3️⃣ Use official SDK or OpenAI-compatible format",
+    "4️⃣ Some models require official SDK — not OpenAI-compatible",
+  ],
+  hosting: [
+    "1️⃣ Sign up for the platform",
+    "2️⃣ Choose a model to deploy",
+    "3️⃣ Get the Endpoint URL after deployment",
+    "4️⃣ Call via REST API or SDK",
+  ],
 };
 
-const typeQuickSteps: Record<ChannelType, string[]> = {
+const typeQuickStepsZh: Record<ChannelType, string[]> = {
   relay: [
     "1️⃣ 注册账号并获取 API Key",
     "2️⃣ 将 API Base URL 替换为中转站地址",
@@ -48,7 +74,8 @@ interface IntegrationGuideProps {
 }
 
 export function IntegrationGuide({ channel }: IntegrationGuideProps) {
-  const steps = typeQuickSteps[channel.type];
+  const { locale, t } = useI18n();
+  const steps = locale === "zh" ? typeQuickStepsZh[channel.type] : typeQuickStepsEn[channel.type];
   const guideUrl = channel.docUrl || channel.url;
 
   return (
@@ -56,7 +83,7 @@ export function IntegrationGuide({ channel }: IntegrationGuideProps) {
       <div className="flex items-center gap-2 mb-4">
         <span className="text-2xl">🚀</span>
         <h2 className="text-lg font-semibold text-foreground">
-          接入助手 · {typeLabels[channel.type]}
+          {locale === "zh" ? "接入助手" : "Integration Guide"} · {t.badge[channel.type as keyof typeof t.badge]}
         </h2>
       </div>
 
@@ -69,7 +96,7 @@ export function IntegrationGuide({ channel }: IntegrationGuideProps) {
 
       {/* Code snippet: base URL swap */}
       <div className="rounded-xl bg-[#0d1117] p-4 mb-5 overflow-x-auto">
-        <p className="text-xs text-muted mb-2">替换 Base URL 即可接入：</p>
+        <p className="text-xs text-muted mb-2">{locale === "zh" ? "替换 Base URL 即可接入：" : "Replace Base URL to integrate:"}</p>
         <pre className="text-sm text-[#7ee787] font-mono">
 {`# 原始 OpenAI 地址
 https://api.openai.com/v1
@@ -81,7 +108,7 @@ ${channel.url}${channel.url.endsWith('/') ? '' : '/'}v1`}
 
       {/* Python example */}
       <div className="rounded-xl bg-[#0d1117] p-4 mb-5 overflow-x-auto">
-        <p className="text-xs text-muted mb-2">Python 示例：</p>
+        <p className="text-xs text-muted mb-2">{locale === "zh" ? "Python 示例：" : "Python example:"}</p>
         <pre className="text-sm text-[#7ee787] font-mono">
 {`from openai import OpenAI
 
@@ -104,7 +131,7 @@ response = client.chat.completions.create(
         rel="noopener noreferrer"
         className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary/90 transition-colors"
       >
-        📖 查看 {channel.name} 官方接入文档 ↗
+        📖 {locale === "zh" ? "查看" : "View"} {channel.name} {locale === "zh" ? "官方接入文档" : "Official Docs"} ↗
       </a>
     </div>
   );

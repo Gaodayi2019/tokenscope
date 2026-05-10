@@ -1,23 +1,38 @@
+"use client";
+
 import type { Channel } from "@/types";
 import { ChannelTypeBadge } from "./ChannelTypeBadge";
 import { StarRating } from "./StarRating";
+import { useI18n } from "@/i18n/context";
 
-const statusConfig = {
-  online:   { label: "在线",   dot: "bg-success" },
-  offline:  { label: "离线",   dot: "bg-danger" },
-  unstable: { label: "不稳定", dot: "bg-warning" },
-  unknown:  { label: "未知",   dot: "bg-muted-foreground" },
+const statusDot = {
+  online:   "bg-success",
+  offline:  "bg-danger",
+  unstable: "bg-warning",
+  unknown:  "bg-muted-foreground",
 };
 
 const certConfig = {
   none: null,
-  verified: { label: "✓ 已认证", cls: "text-primary" },
-  premium:  { label: "★ 高级认证", cls: "text-warning" },
+  verified: { key: "certVerified", cls: "text-primary" } as const,
+  premium:  { key: "certPremium",  cls: "text-warning" } as const,
 };
 
 export function ChannelCard({ channel }: { channel: Channel }) {
-  const status = statusConfig[channel.status];
+  const { locale, t } = useI18n();
+  const statusLabel = t.card[channel.status as keyof typeof t.card] || channel.status;
   const cert = certConfig[channel.certLevel];
+
+  // Pick localized description / tags / freeTier description
+  const description = locale === "en" && channel.descriptionEn
+    ? channel.descriptionEn
+    : channel.description;
+  const tags = locale === "en" && channel.tagsEn?.length
+    ? channel.tagsEn
+    : channel.tags;
+  const freeTierDesc = locale === "en" && channel.freeTier?.descriptionEn
+    ? channel.freeTier.descriptionEn
+    : channel.freeTier?.description;
 
   return (
     <a href={`/channel/${channel.id}`} className="group block">
@@ -35,26 +50,28 @@ export function ChannelCard({ channel }: { channel: Channel }) {
                 </h3>
                 <ChannelTypeBadge type={channel.type} />
                 {cert && (
-                  <span className={`text-xs font-medium ${cert.cls}`}>{cert.label}</span>
+                  <span className={`text-xs font-medium ${cert.cls}`}>
+                    {t.card[cert.key]}
+                  </span>
                 )}
               </div>
               <div className="flex items-center gap-2 mt-0.5 text-xs text-muted">
-                <span className={`inline-block h-1.5 w-1.5 rounded-full ${status.dot}`} />
-                <span>{status.label}</span>
-                <span>· 延迟 {channel.stats.avgLatency}ms</span>
-                <span>· 可用率 {channel.stats.uptime30d}%</span>
+                <span className={`inline-block h-1.5 w-1.5 rounded-full ${statusDot[channel.status]}`} />
+                <span>{statusLabel}</span>
+                <span>· {t.card.latency} {channel.stats.avgLatency}ms</span>
+                <span>· {t.card.uptime} {channel.stats.uptime30d}%</span>
               </div>
             </div>
           </div>
           <div className="text-right shrink-0">
             <StarRating value={channel.ratings.overall} size="sm" showValue />
-            <p className="text-xs text-muted mt-0.5">{channel.stats.reviewCount} 条评价</p>
+            <p className="text-xs text-muted mt-0.5">{channel.stats.reviewCount} {t.card.reviews}</p>
           </div>
         </div>
 
         {/* Description */}
         <p className="mt-3 text-sm text-muted line-clamp-2">
-          {channel.description}
+          {description}
         </p>
 
         {/* Models */}
@@ -66,7 +83,7 @@ export function ChannelCard({ channel }: { channel: Channel }) {
             >
               {model.name}
               {model.isFree && (
-                <span className="font-medium text-success">免费</span>
+                <span className="font-medium text-success">{t.card.free}</span>
               )}
             </span>
           ))}
@@ -82,10 +99,10 @@ export function ChannelCard({ channel }: { channel: Channel }) {
           <div className="flex flex-wrap gap-1.5">
             {channel.freeTier?.available && (
               <span className="rounded bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
-                🎁 {channel.freeTier.description}
+                🎁 {freeTierDesc}
               </span>
             )}
-            {channel.tags.slice(0, 3).map((tag) => (
+            {tags.slice(0, 3).map((tag) => (
               <span key={tag} className="rounded bg-surface px-2 py-0.5 text-xs text-muted">
                 {tag}
               </span>

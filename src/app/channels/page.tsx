@@ -32,7 +32,7 @@ function sortChannels(list: Channel[], key: SortKey): Channel[] {
 }
 
 export default function ChannelsPage() {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const [search, setSearch] = useState("");
   const [activeType, setActiveType] = useState<ChannelType | "all">("all");
   const [activeRegion, setActiveRegion] = useState<Region | "all">("all");
@@ -59,7 +59,7 @@ export default function ChannelsPage() {
 
   const regionFilters: { region: Region | "all"; label: string }[] = [
     { region: "all",    label: t.channels.all },
-    { region: "cn",     label: "🇨🇳 中国" },
+    { region: "cn",     label: locale === "zh" ? "🇨🇳 中国" : "🇨🇳 China" },
     { region: "us",     label: "🇺🇸 US" },
     { region: "eu",     label: "🇪🇺 EU" },
     { region: "asia",   label: "🌏 Asia" },

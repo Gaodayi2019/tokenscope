@@ -12,7 +12,7 @@ import { useI18n } from "@/i18n/context";
 type Metric = "overall" | "stability" | "speed" | "service" | "value";
 
 function CompareContent() {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const searchParams = useSearchParams();
   const preselected = searchParams.get("ids")?.split(",").filter(Boolean) || [];
 
@@ -52,7 +52,7 @@ function CompareContent() {
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-semibold text-foreground">{t.compare.selectChannels}</h2>
             <button onClick={() => setShowPicker(!showPicker)} className="text-sm text-primary hover:underline">
-              {showPicker ? "收起" : "展开"}
+              {showPicker ? (locale === "zh" ? "收起" : "Collapse") : (locale === "zh" ? "展开" : "Expand")}
             </button>
           </div>
           {showPicker && (
