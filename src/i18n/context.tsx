@@ -16,16 +16,16 @@ interface I18nContextValue {
 }
 
 const I18nContext = createContext<I18nContextValue>({
-  locale: "zh",
-  t: zh,
+  locale: "en",
+  t: en,
   setLocale: () => {},
 });
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("zh");
+  const [locale, setLocaleState] = useState<Locale>("en");
 
   useEffect(() => {
-    // Auto-detect from browser, fall back to zh
+    // Auto-detect from browser, fall back to en
     const saved = localStorage.getItem("tokenscope-locale") as Locale | null;
     if (saved && locales[saved]) {
       setLocaleState(saved);
