@@ -4,14 +4,6 @@ import { useState } from "react";
 import { ChannelType } from "@/types";
 import { useI18n } from "@/i18n/context";
 
-const typeOptions: { value: ChannelType; label: string }[] = [
-  { value: "relay", label: "🔄 API中转站" },
-  { value: "proxy", label: "🎫 Token代理" },
-  { value: "free-model", label: "🎁 免费模型" },
-  { value: "direct", label: "🏢 官方直连" },
-  { value: "hosting", label: "☁️ 托管服务" },
-];
-
 interface SubmitChannelModalProps {
   open: boolean;
   onClose: () => void;

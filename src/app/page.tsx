@@ -15,7 +15,7 @@ const freeChannels = staticChannels.filter(
 );
 
 export default function HomePage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { stats } = useSiteStats();
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -105,7 +105,7 @@ export default function HomePage() {
                     </div>
                     <div>
                       <div className="font-medium text-foreground text-sm">{ch.name}</div>
-                      <div className="text-xs text-success">{ch.freeTier?.description || t.home.freeLabel}</div>
+                      <div className="text-xs text-success">{locale === "en" && ch.freeTier?.descriptionEn ? ch.freeTier.descriptionEn : (ch.freeTier?.description || t.home.freeLabel)}</div>
                     </div>
                   </div>
                 </a>

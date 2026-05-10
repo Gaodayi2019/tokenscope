@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
   // In production: require auth header, get user from JWT
   const authHeader = req.headers.get("authorization");
   let userId = "anonymous";
-  let username = "匿名用户";
+  let username = "Anonymous";
 
   if (authHeader) {
     const anonSupabase = createClient(
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
     if (user) {
       userId = user.id;
       const { data: profile } = await anonSupabase.from("profiles").select("display_name").eq("id", user.id).single();
-      username = profile?.display_name || user.email?.split("@")[0] || "用户";
+      username = profile?.display_name || user.email?.split("@")[0] || "User";
     }
   }
 

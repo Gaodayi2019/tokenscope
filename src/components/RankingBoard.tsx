@@ -163,7 +163,7 @@ export function RankingBoard({ channels }: { channels: Channel[] }) {
                   <span>{t.card.latency} {ch.stats.avgLatency}ms</span>
                   <span>{t.card.uptime} {ch.stats.uptime30d}%</span>
                   {lowest !== Infinity && (
-                    <span>最低 ${lowest.toFixed(2)}/1M</span>
+                    <span>{locale === "zh" ? `最低 $${lowest.toFixed(2)}/1M` : `From $${lowest.toFixed(2)}/1M`}</span>
                   )}
                   {ch.freeTier?.available && (
                     <span className="text-success">{locale === "zh" ? ch.freeTier.description : (ch.freeTier as any).descriptionEn || ch.freeTier.description}</span>

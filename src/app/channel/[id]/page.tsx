@@ -20,7 +20,7 @@ const ratingKeys: Record<string, string> = { stability: "stability", speed: "spe
 
 export default function ChannelDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { channel: ch, loading } = useChannel(id);
   const [reviewOpen, setReviewOpen] = useState(false);
 
@@ -108,7 +108,7 @@ export default function ChannelDetailPage() {
           </div>
 
           {/* Description */}
-          <p className="mt-5 text-muted leading-relaxed">{ch.description}</p>
+          <p className="mt-5 text-muted leading-relaxed">{locale === "en" && ch.descriptionEn ? ch.descriptionEn : ch.description}</p>
 
           {/* Action buttons */}
           <div className="mt-5 flex flex-wrap gap-3">
@@ -197,7 +197,7 @@ export default function ChannelDetailPage() {
         {ch.freeTier?.available && (
           <div className="mt-6 rounded-2xl border border-success/30 bg-success/5 p-6">
             <h2 className="text-lg font-semibold text-success mb-2">🎁 {t.channel.freeTier}</h2>
-            <p className="text-foreground">{ch.freeTier.description}</p>
+            <p className="text-foreground">{locale === "en" && ch.freeTier.descriptionEn ? ch.freeTier.descriptionEn : ch.freeTier.description}</p>
           </div>
         )}
 
@@ -215,7 +215,7 @@ export default function ChannelDetailPage() {
         <div className="mt-6 rounded-2xl border border-card-border bg-card-bg p-6">
           <h2 className="text-lg font-semibold text-foreground mb-3">{t.channel.tags}</h2>
           <div className="flex flex-wrap gap-2">
-            {ch.tags.map((tag) => (
+            {(locale === "en" && ch.tagsEn?.length ? ch.tagsEn : ch.tags).map((tag) => (
               <span key={tag} className="rounded-lg bg-surface px-3 py-1.5 text-sm text-muted">{tag}</span>
             ))}
           </div>

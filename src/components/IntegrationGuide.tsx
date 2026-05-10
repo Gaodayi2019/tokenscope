@@ -98,11 +98,7 @@ export function IntegrationGuide({ channel }: IntegrationGuideProps) {
       <div className="rounded-xl bg-[#0d1117] p-4 mb-5 overflow-x-auto">
         <p className="text-xs text-muted mb-2">{locale === "zh" ? "替换 Base URL 即可接入：" : "Replace Base URL to integrate:"}</p>
         <pre className="text-sm text-[#7ee787] font-mono">
-{`# 原始 OpenAI 地址
-https://api.openai.com/v1
-
-# 替换为 ${channel.name}
-${channel.url}${channel.url.endsWith('/') ? '' : '/'}v1`}
+{locale === "zh" ? `# 原始 OpenAI 地址\nhttps://api.openai.com/v1\n\n# 替换为 ${channel.name}\n${channel.url}${channel.url.endsWith('/') ? '' : '/'}v1` : `# Original OpenAI URL\nhttps://api.openai.com/v1\n\n# Replace with ${channel.name}\n${channel.url}${channel.url.endsWith('/') ? '' : '/'}v1`}
         </pre>
       </div>
 
@@ -110,17 +106,7 @@ ${channel.url}${channel.url.endsWith('/') ? '' : '/'}v1`}
       <div className="rounded-xl bg-[#0d1117] p-4 mb-5 overflow-x-auto">
         <p className="text-xs text-muted mb-2">{locale === "zh" ? "Python 示例：" : "Python example:"}</p>
         <pre className="text-sm text-[#7ee787] font-mono">
-{`from openai import OpenAI
-
-client = OpenAI(
-    api_key="你的API Key",
-    base_url="${channel.url}${channel.url.endsWith('/') ? '' : '/'}v1"
-)
-
-response = client.chat.completions.create(
-    model="模型名称",
-    messages=[{"role": "user", "content": "Hello!"}]
-)`}
+{locale === "zh" ? `from openai import OpenAI\n\nclient = OpenAI(\n    api_key="你的API Key",\n    base_url="${channel.url}${channel.url.endsWith('/') ? '' : '/'}v1"\n)\n\nresponse = client.chat.completions.create(\n    model="模型名称",\n    messages=[{"role": "user", "content": "Hello!"}]\n)` : `from openai import OpenAI\n\nclient = OpenAI(\n    api_key="your-api-key",\n    base_url="${channel.url}${channel.url.endsWith('/') ? '' : '/'}v1"\n)\n\nresponse = client.chat.completions.create(\n    model="model-name",\n    messages=[{"role": "user", "content": "Hello!"}]\n)`}
         </pre>
       </div>
 
