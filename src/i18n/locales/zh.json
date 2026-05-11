@@ -106,7 +106,9 @@
     "detail": "详情 →",
     "none": "无",
     "pick": "请至少选择 2 个渠道开始对比",
-    "overall": "综合评分"
+    "overall": "综合评分",
+    "collapse": "收起",
+    "expand": "展开"
   },
   "free": {
     "title": "免费模型专区",
@@ -119,7 +121,11 @@
     "action": "操作",
     "visit": "访问",
     "docs": "文档",
-    "free": "免费"
+    "free": "免费",
+    "found": "找到",
+    "freeModelsUnit": "个免费模型",
+    "noResults": "没有找到匹配的免费模型",
+    "clearFilters": "清除筛选"
   },
   "guides": {
     "title": "新手指南",
@@ -283,5 +289,54 @@
     "hosting": "托管",
     "lowestPrice": "最低"
   },
-  "common": { "loading": "加载中...", "noData": "暂无数据", "search": "搜索", "filter": "筛选", "sort": "排序", "more": "更多" }
+  "common": { "loading": "加载中...", "noData": "暂无数据", "search": "搜索", "filter": "筛选", "sort": "排序", "more": "更多" },
+  "review": {
+    "submitted": "评价已提交！",
+    "thanks": "感谢你的真实反馈",
+    "ok": "好的",
+    "title": "评价",
+    "overall": "综合评分：",
+    "experience": "使用感受 *",
+    "experiencePlaceholder": "分享你的真实使用体验，帮助其他人做出选择...",
+    "cancel": "取消",
+    "submitting": "提交中...",
+    "submit": "提交评价"
+  },
+  "submit": {
+    "submitted": "提交成功！",
+    "submittedHint": "管理员审核通过后将自动上线",
+    "ok": "好的",
+    "title": "提交新渠道",
+    "channelName": "渠道名称 *",
+    "channelNamePlaceholder": "如：MyRelay",
+    "channelType": "渠道类型 *",
+    "apiUrl": "API 地址 *",
+    "docsUrl": "文档地址",
+    "description": "简介",
+    "descriptionPlaceholder": "简单描述这个渠道的特点...",
+    "email": "你的邮箱（选填，审核结果通知）",
+    "notes": "补充说明",
+    "notesPlaceholder": "你想让管理员知道的额外信息...",
+    "cancel": "取消",
+    "submitting": "提交中...",
+    "submit": "提交审核"
+  },
+  "integration": {
+    "title": "接入助手",
+    "replaceUrl": "替换 Base URL 即可接入：",
+    "pythonExample": "Python 示例：",
+    "viewDocs": "查看",
+    "officialDocs": "官方接入文档",
+    "stepRelay": ["注册账号并获取 API Key","将 API Base URL 替换为中转站地址","在请求头中填入你的 API Key","模型名称与 OpenAI 保持一致，直接调用"],
+    "stepProxy": ["购买/获取 Token 额度","使用提供的 API Key 替换原 Key","Base URL 可能与官方相同或不同，按文档配置","调用方式与 OpenAI SDK 兼容"],
+    "stepFree": ["注册平台账号","在控制台获取免费 API Key","按文档配置 Base URL 和模型名","注意免费额度和速率限制"],
+    "stepDirect": ["注册官方账号并实名认证（如需）","开通 API 服务，获取 Key","按官方 SDK 或 OpenAI 兼容方式调用","部分模型需使用官方 SDK，不兼容 OpenAI 格式"],
+    "stepHosting": ["注册平台账号","选择要部署的模型","部署完成后获取 Endpoint URL","按 REST API 或 SDK 方式调用"],
+    "codeCommentOriginal": "原始 OpenAI 地址",
+    "codeCommentReplace": "替换为",
+    "codeApiKey": "你的API Key",
+    "codeModelName": "模型名称"
+  },
+  "region": { "cn": "🇨🇳 中国", "us": "🇺🇸 US", "eu": "🇪🇺 EU", "asia": "🌏 Asia", "global": "🌐 Global" },
+  "payment": { "separator": "、" }
 }

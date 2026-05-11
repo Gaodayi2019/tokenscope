@@ -61,16 +61,16 @@ export function ReviewModal({ open, onClose, channelName, channelId }: ReviewMod
         {done ? (
           <div className="text-center py-8">
             <div className="text-5xl mb-4">✅</div>
-            <h3 className="text-xl font-bold text-foreground">{locale === "zh" ? "评价已提交！" : "Review Submitted!"}</h3>
-            <p className="mt-2 text-sm text-muted">{locale === "zh" ? "感谢你的真实反馈" : "Thanks for your honest feedback"}</p>
+            <h3 className="text-xl font-bold text-foreground">{t.review.submitted}</h3>
+            <p className="mt-2 text-sm text-muted">{t.review.thanks}</p>
             <button onClick={handleClose} className="mt-6 rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-white hover:bg-primary/90">
-              {locale === "zh" ? "好的" : "OK"}
+              {t.review.ok}
             </button>
           </div>
         ) : (
           <>
             <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-bold text-foreground">⭐ {locale === "zh" ? "评价" : "Review"} {channelName}</h3>
+              <h3 className="text-lg font-bold text-foreground">⭐ {t.review.title} {channelName}</h3>
               <button onClick={handleClose} className="text-muted hover:text-foreground text-xl">×</button>
             </div>
 
@@ -102,19 +102,19 @@ export function ReviewModal({ open, onClose, channelName, channelId }: ReviewMod
 
             {avg && (
               <div className="text-center mb-4 py-2 rounded-xl bg-primary/10">
-                <span className="text-sm text-muted">{locale === "zh" ? "综合评分：" : "Overall:"}</span>
+                <span className="text-sm text-muted">{t.review.overall}</span>
                 <span className="text-lg font-bold text-primary ml-2">{avg}</span>
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">{locale === "zh" ? "使用感受 *" : "Your Experience *"}</label>
+              <label className="block text-sm font-medium text-foreground mb-1">{t.review.experience}</label>
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 rows={4}
                 className="w-full rounded-xl bg-surface border border-card-border px-4 py-2.5 text-sm text-foreground placeholder-muted focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                placeholder={locale === "zh" ? "分享你的真实使用体验，帮助其他人做出选择..." : "Share your real experience to help others decide..."}
+                placeholder={t.review.experiencePlaceholder}
               />
             </div>
 
@@ -123,14 +123,14 @@ export function ReviewModal({ open, onClose, channelName, channelId }: ReviewMod
                 onClick={handleClose}
                 className="rounded-xl bg-surface px-5 py-2.5 text-sm font-medium text-foreground hover:bg-surface-hover"
               >
-                {locale === "zh" ? "取消" : "Cancel"}
+                {t.review.cancel}
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={Object.values(ratings).some((v) => v === 0) || !content.trim() || submitting}
                 className="flex-1 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {submitting ? (locale === "zh" ? "提交中..." : "Submitting...") : (locale === "zh" ? "提交评价" : "Submit Review")}
+                {submitting ? t.review.submitting : t.review.submit}
               </button>
             </div>
           </>

@@ -59,11 +59,11 @@ export default function ChannelsPage() {
 
   const regionFilters: { region: Region | "all"; label: string }[] = [
     { region: "all",    label: t.channels.all },
-    { region: "cn",     label: locale === "zh" ? "🇨🇳 中国" : "🇨🇳 China" },
-    { region: "us",     label: "🇺🇸 US" },
-    { region: "eu",     label: "🇪🇺 EU" },
-    { region: "asia",   label: "🌏 Asia" },
-    { region: "global", label: "🌐 Global" },
+    { region: "cn",     label: t.region.cn },
+    { region: "us",     label: t.region.us },
+    { region: "eu",     label: t.region.eu },
+    { region: "asia",   label: t.region.asia },
+    { region: "global", label: t.region.global },
   ];
 
   const sortOptions: { key: SortKey; label: string; icon: string }[] = [

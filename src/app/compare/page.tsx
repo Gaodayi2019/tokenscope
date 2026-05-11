@@ -52,7 +52,7 @@ function CompareContent() {
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-semibold text-foreground">{t.compare.selectChannels}</h2>
             <button onClick={() => setShowPicker(!showPicker)} className="text-sm text-primary hover:underline">
-              {showPicker ? (locale === "zh" ? "收起" : "Collapse") : (locale === "zh" ? "展开" : "Expand")}
+              {showPicker ? t.compare.collapse : t.compare.expand}
             </button>
           </div>
           {showPicker && (
@@ -150,7 +150,7 @@ function CompareContent() {
                   <tr>
                     <td className="p-4 text-muted">{t.compare.payment}</td>
                     {selected.map((ch) => (
-                      <td key={ch.id} className="p-4 text-foreground">{ch.paymentMethods.join("、")}</td>
+                      <td key={ch.id} className="p-4 text-foreground">{ch.paymentMethods.join(t.payment.separator)}</td>
                     ))}
                   </tr>
                 </tbody>

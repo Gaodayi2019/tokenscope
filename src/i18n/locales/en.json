@@ -106,7 +106,9 @@
     "detail": "Details →",
     "none": "None",
     "pick": "Select at least 2 channels to compare",
-    "overall": "Overall Rating"
+    "overall": "Overall Rating",
+    "collapse": "Collapse",
+    "expand": "Expand"
   },
   "free": {
     "title": "Free Models Hub",
@@ -119,7 +121,11 @@
     "action": "Action",
     "visit": "Visit",
     "docs": "Docs",
-    "free": "Free"
+    "free": "Free",
+    "found": "Found",
+    "freeModelsUnit": "free models",
+    "noResults": "No matching free models found",
+    "clearFilters": "Clear Filters"
   },
   "guides": {
     "title": "Getting Started",
@@ -283,5 +289,54 @@
     "hosting": "Hosting",
     "lowestPrice": "from"
   },
-  "common": { "loading": "Loading...", "noData": "No data", "search": "Search", "filter": "Filter", "sort": "Sort", "more": "More" }
+  "common": { "loading": "Loading...", "noData": "No data", "search": "Search", "filter": "Filter", "sort": "Sort", "more": "More" },
+  "review": {
+    "submitted": "Review Submitted!",
+    "thanks": "Thanks for your honest feedback",
+    "ok": "OK",
+    "title": "Review",
+    "overall": "Overall:",
+    "experience": "Your Experience *",
+    "experiencePlaceholder": "Share your real experience to help others decide...",
+    "cancel": "Cancel",
+    "submitting": "Submitting...",
+    "submit": "Submit Review"
+  },
+  "submit": {
+    "submitted": "Submitted!",
+    "submittedHint": "It will go live after admin approval",
+    "ok": "OK",
+    "title": "Submit New Channel",
+    "channelName": "Channel Name *",
+    "channelNamePlaceholder": "e.g. MyRelay",
+    "channelType": "Channel Type *",
+    "apiUrl": "API URL *",
+    "docsUrl": "Docs URL",
+    "description": "Description",
+    "descriptionPlaceholder": "Brief description of this channel...",
+    "email": "Your email (optional, for approval notification)",
+    "notes": "Additional notes",
+    "notesPlaceholder": "Any extra info for the admin...",
+    "cancel": "Cancel",
+    "submitting": "Submitting...",
+    "submit": "Submit for Review"
+  },
+  "integration": {
+    "title": "Integration Guide",
+    "replaceUrl": "Replace Base URL to integrate:",
+    "pythonExample": "Python example:",
+    "viewDocs": "View",
+    "officialDocs": "Official Docs",
+    "stepRelay": ["Register and get API Key","Replace Base URL with the relay address","Add your API Key to request headers","Model names match OpenAI, call directly"],
+    "stepProxy": ["Purchase or obtain token credits","Use the provided API Key to replace the original","Base URL may differ from official, configure per docs","Compatible with OpenAI SDK"],
+    "stepFree": ["Register a platform account","Get free API Key from the dashboard","Configure Base URL and model name per docs","Note free quota and rate limits"],
+    "stepDirect": ["Register official account and verify identity if needed","Enable API service and get Key","Use official SDK or OpenAI-compatible format","Some models require official SDK, not OpenAI-compatible"],
+    "stepHosting": ["Register a platform account","Choose a model to deploy","Get Endpoint URL after deployment","Call via REST API or SDK"],
+    "codeCommentOriginal": "Original OpenAI URL",
+    "codeCommentReplace": "Replace with",
+    "codeApiKey": "your-api-key",
+    "codeModelName": "model-name"
+  },
+  "region": { "cn": "🇨🇳 China", "us": "🇺🇸 US", "eu": "🇪🇺 EU", "asia": "🌏 Asia", "global": "🌐 Global" },
+  "payment": { "separator": ", " }
 }

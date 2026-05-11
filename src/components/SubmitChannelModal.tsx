@@ -62,32 +62,32 @@ export function SubmitChannelModal({ open, onClose }: SubmitChannelModalProps) {
         {done ? (
           <div className="text-center py-8">
             <div className="text-5xl mb-4">🎉</div>
-            <h3 className="text-xl font-bold text-foreground">{locale === "zh" ? "提交成功！" : "Submitted!"}</h3>
-            <p className="mt-2 text-sm text-muted">{locale === "zh" ? "管理员审核通过后将自动上线" : "It will go live after admin approval"}</p>
+            <h3 className="text-xl font-bold text-foreground">{t.submit.submitted}</h3>
+            <p className="mt-2 text-sm text-muted">{t.submit.submittedHint}</p>
             <button onClick={handleClose} className="mt-6 rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-white hover:bg-primary/90">
-              {locale === "zh" ? "好的" : "OK"}
+              {t.submit.ok}
             </button>
           </div>
         ) : (
           <>
             <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-bold text-foreground">🆕 {locale === "zh" ? "提交新渠道" : "Submit New Channel"}</h3>
+              <h3 className="text-lg font-bold text-foreground">🆕 {t.submit.title}</h3>
               <button onClick={handleClose} className="text-muted hover:text-foreground text-xl">×</button>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">{locale === "zh" ? "渠道名称 *" : "Channel Name *"}</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t.submit.channelName}</label>
                 <input
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   className="w-full rounded-xl bg-surface border border-card-border px-4 py-2.5 text-sm text-foreground placeholder-muted focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder={locale === "zh" ? "如：MyRelay" : "e.g. MyRelay"}
+                  placeholder={t.submit.channelNamePlaceholder}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">{locale === "zh" ? "渠道类型 *" : "Channel Type *"}</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t.submit.channelType}</label>
                 <div className="grid grid-cols-2 gap-2">
                   {typeOptions.map((opt) => (
                     <button
@@ -106,7 +106,7 @@ export function SubmitChannelModal({ open, onClose }: SubmitChannelModalProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">{locale === "zh" ? "API 地址 *" : "API URL *"}</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t.submit.apiUrl}</label>
                 <input
                   value={form.url}
                   onChange={(e) => setForm({ ...form, url: e.target.value })}
@@ -116,7 +116,7 @@ export function SubmitChannelModal({ open, onClose }: SubmitChannelModalProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">{locale === "zh" ? "文档地址" : "Docs URL"}</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t.submit.docsUrl}</label>
                 <input
                   value={form.docUrl}
                   onChange={(e) => setForm({ ...form, docUrl: e.target.value })}
@@ -126,18 +126,18 @@ export function SubmitChannelModal({ open, onClose }: SubmitChannelModalProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">{locale === "zh" ? "简介" : "Description"}</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t.submit.description}</label>
                 <textarea
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   rows={2}
                   className="w-full rounded-xl bg-surface border border-card-border px-4 py-2.5 text-sm text-foreground placeholder-muted focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                  placeholder={locale === "zh" ? "简单描述这个渠道的特点..." : "Brief description of this channel..."}
+                  placeholder={t.submit.descriptionPlaceholder}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">{locale === "zh" ? "你的邮箱（选填，审核结果通知）" : "Your email (optional, for approval notification)"}</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t.submit.email}</label>
                 <input
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -147,13 +147,13 @@ export function SubmitChannelModal({ open, onClose }: SubmitChannelModalProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">{locale === "zh" ? "补充说明" : "Additional notes"}</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t.submit.notes}</label>
                 <textarea
                   value={form.note}
                   onChange={(e) => setForm({ ...form, note: e.target.value })}
                   rows={2}
                   className="w-full rounded-xl bg-surface border border-card-border px-4 py-2.5 text-sm text-foreground placeholder-muted focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                  placeholder={locale === "zh" ? "你想让管理员知道的额外信息..." : "Any extra info for the admin..."}
+                  placeholder={t.submit.notesPlaceholder}
                 />
               </div>
             </div>
@@ -163,14 +163,14 @@ export function SubmitChannelModal({ open, onClose }: SubmitChannelModalProps) {
                 onClick={handleClose}
                 className="rounded-xl bg-surface px-5 py-2.5 text-sm font-medium text-foreground hover:bg-surface-hover"
               >
-                {locale === "zh" ? "取消" : "Cancel"}
+                {t.submit.cancel}
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={!form.name || !form.url || submitting}
                 className="flex-1 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {submitting ? (locale === "zh" ? "提交中..." : "Submitting...") : (locale === "zh" ? "提交审核" : "Submit for Review")}
+                {submitting ? t.submit.submitting : t.submit.submit}
               </button>
             </div>
           </>
