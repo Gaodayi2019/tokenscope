@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase";
 import { parseAllSources } from "@/lib/channel-parsers";
+import { autoTranslateChannels, isTranslationEnabled } from "@/lib/channel-translate";
 import type { ParsedChannelData, ParsedDiscoveryResult } from "@/lib/channel-parsers";
 
 // Vercel Cron Job — daily channel data update
@@ -30,6 +31,36 @@ export async function GET(req: NextRequest) {
     console.log("[cron] Starting parseAllSources...");
     const { channels, discoveries } = await parseAllSources();
     console.log(`[cron] Parsed: ${channels.length} channels, ${discoveries.length} discoveries`);
+
+    // ── Step 1.5: Auto-translate bilingual fields ──────────
+    const translateEnabled = isTranslationEnabled();
+    console.log(`[cron] Translation: ${translateEnabled ? 'LLM enabled' : 'static mappings only'}`);
+    // Collect channel data for translation
+    const translatable = channels.map(c => ({
+      id: c.channel.id,
+      name: c.channel.name,
+      type: c.channel.type || 'relay',
+      description: c.channel.description,
+      description_en: c.channel.description_en,
+      tags: c.channel.tags,
+      tags_en: c.channel.tags_en,
+      free_tier_description: c.channel.free_tier_description,
+      free_tier_description_en: c.channel.free_tier_description_en,
+      models: c.models.map(m => ({ name: m.name })),
+    }));
+    await autoTranslateChannels(translatable);
+    // Write translated fields back to parsed channel objects
+    for (const parsed of channels) {
+      const t = translatable.find(x => x.id === parsed.channel.id);
+      if (t) {
+        if (t.description) parsed.channel.description = t.description;
+        if (t.description_en) parsed.channel.description_en = t.description_en;
+        if (t.tags) parsed.channel.tags = t.tags;
+        if (t.tags_en) parsed.channel.tags_en = t.tags_en;
+        if (t.free_tier_description) parsed.channel.free_tier_description = t.free_tier_description;
+        if (t.free_tier_description_en) parsed.channel.free_tier_description_en = t.free_tier_description_en;
+      }
+    }
 
     // ── Step 2: Upsert channels + models ───────────────────
     for (const parsed of channels) {
