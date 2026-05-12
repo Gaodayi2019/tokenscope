@@ -171,7 +171,7 @@ export default function ChannelDetailPage() {
                       {m.name}
                       {m.isFree && <span className="ml-2 rounded bg-success/15 px-1.5 py-0.5 text-xs font-medium text-success">{t.channel.free}</span>}
                     </td>
-                    <td className="py-3 pr-4 text-muted">{m.category}</td>
+                    <td className="py-3 pr-4 text-muted">{(t.modelCategory as any)[m.category] || m.category}</td>
                     <td className="py-3 pr-4 text-foreground">
                       {m.inputPricePer1M != null ? `$${m.inputPricePer1M}/1M` : "—"}
                     </td>
@@ -206,7 +206,7 @@ export default function ChannelDetailPage() {
           <h2 className="text-lg font-semibold text-foreground mb-3">{t.channel.paymentMethods}</h2>
           <div className="flex flex-wrap gap-2">
             {ch.paymentMethods.map((pm) => (
-              <span key={pm} className="rounded-lg bg-surface px-3 py-1.5 text-sm text-foreground">{pm}</span>
+              <span key={pm} className="rounded-lg bg-surface px-3 py-1.5 text-sm text-foreground">{(t.paymentMethod as any)[pm] || pm}</span>
             ))}
           </div>
         </div>

@@ -83,7 +83,7 @@ export default function FreePage() {
             const count = freeModels.filter((i) => i.model.category === cat).length;
             return (
               <button key={cat} onClick={() => setCatFilter(cat)} className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${catFilter === cat ? "bg-primary text-white" : "bg-surface text-muted hover:text-foreground"}`}>
-                {categoryIcons[cat] || "📦"} {cat} ({count})
+                {categoryIcons[cat] || "📦"} {(t.modelCategory as any)[cat] || cat} ({count})
               </button>
             );
           })}

@@ -338,5 +338,7 @@
     "codeModelName": "model-name"
   },
   "region": { "cn": "🇨🇳 China", "us": "🇺🇸 US", "eu": "🇪🇺 EU", "asia": "🌏 Asia", "global": "🌐 Global" },
-  "payment": { "separator": ", " }
+  "payment": { "separator": ", " },
+  "modelCategory": { "chat": "Chat", "code": "Code", "vision": "Vision", "embedding": "Embedding", "image": "Image Gen", "audio": "Audio", "reasoning": "Reasoning" },
+  "paymentMethod": { "alipay": "Alipay", "wechat": "WeChat Pay", "credit-card": "Credit Card", "crypto": "Crypto", "free": "Free" }
 }

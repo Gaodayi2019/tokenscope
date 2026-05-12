@@ -338,5 +338,7 @@
     "codeModelName": "模型名称"
   },
   "region": { "cn": "🇨🇳 中国", "us": "🇺🇸 US", "eu": "🇪🇺 EU", "asia": "🌏 Asia", "global": "🌐 Global" },
-  "payment": { "separator": "、" }
+  "payment": { "separator": "、" },
+  "modelCategory": { "chat": "对话", "code": "代码", "vision": "视觉", "embedding": "向量化", "image": "图像生成", "audio": "音频", "reasoning": "推理" },
+  "paymentMethod": { "alipay": "支付宝", "wechat": "微信支付", "credit-card": "信用卡", "crypto": "加密货币", "free": "免费" }
 }

@@ -150,7 +150,7 @@ function CompareContent() {
                   <tr>
                     <td className="p-4 text-muted">{t.compare.payment}</td>
                     {selected.map((ch) => (
-                      <td key={ch.id} className="p-4 text-foreground">{ch.paymentMethods.join(t.payment.separator)}</td>
+                      <td key={ch.id} className="p-4 text-foreground">{ch.paymentMethods.map((pm: string) => (t.paymentMethod as any)[pm] || pm).join(t.payment.separator)}</td>
                     ))}
                   </tr>
                 </tbody>
