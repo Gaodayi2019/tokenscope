@@ -242,6 +242,13 @@ async function logDiscoveries(
 
   for (const s of stations) {
     if (!s.url || !s.name) continue;
+
+    // Quality filter: skip non-API URLs
+    if (!isLikelyApiProvider(s.url, s.name)) {
+      console.log(`[cron] Discovery skip (not an API provider): ${s.name} — ${s.url}`);
+      continue;
+    }
+
     const normUrl = normalizeUrl(s.url);
     if (existingUrls.has(normUrl)) {
       console.log(`[cron] Discovery skip (already a channel): ${s.name} — ${s.url}`);
@@ -277,6 +284,34 @@ async function logDiscoveries(
   stats.discoveriesTotal += stations.length;
   stats.discoveriesNew += toInsert.length;
   console.log(`[cron] Discovery summary: ${stations.length} found, ${toInsert.length} new, ${stations.length - toInsert.length} duplicates`);
+}
+
+/** Filter out non-API-provider URLs (docs, images, blog posts, etc.) */
+function isLikelyApiProvider(url: string, name: string): boolean {
+  try {
+    const u = new URL(url);
+    const path = u.pathname.toLowerCase();
+    const hostname = u.hostname.toLowerCase();
+
+    // Skip image files
+    if (/\.(png|jpg|jpeg|gif|svg|webp|ico)$/i.test(path)) return false;
+    // Skip document/markdown files
+    if (/\.(md|pdf|doc|docx|txt)$/i.test(path)) return false;
+    // Skip common non-API path patterns
+    if (/^\/(docs|blog|wiki|help|support|tutorial|guide|changelog|news)\//i.test(path)) return false;
+    // Skip GitHub repos (not actual API endpoints) — but allow github.io pages
+    if (hostname === 'github.com' || hostname === 'gist.github.com') return false;
+    // Skip URL shorteners and image hosts
+    if (/(imgur|imgdd|imgbb|flickr|tinypic|postimg)\.com$/i.test(hostname)) return false;
+    // Skip social media
+    if (/(twitter\.com|x\.com|facebook\.com|reddit\.com|weibo\.com|zhihu\.com)$/i.test(hostname)) return false;
+    // Skip if name looks like a tutorial/guide (Chinese)
+    if (/(教程|指南|配置|推荐|排行|评测|对比|测评|架构|原理|入门)/.test(name)) return false;
+
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /** Normalize URL for dedup: lowercase, remove trailing slash, strip protocol */
