@@ -55,7 +55,7 @@ export const metadata: Metadata = {
       "Search, compare, and review AI model providers worldwide — relays, proxies, free tiers, and direct access all in one place.",
     images: [
       {
-        url: `${siteUrl}/api/og?title=TokenScope&subtitle=Find the Best AI Model Access`,
+        url: `${siteUrl}/og-image.png`,
         width: 1200,
         height: 630,
         alt: "TokenScope — AI Model Access Comparison Platform",
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
     title: "TokenScope — Find the Best AI Model Access",
     description:
       "Search, compare, and review AI model providers worldwide — relays, proxies, free tiers, and direct access.",
-    images: [`${siteUrl}/api/og?title=TokenScope&subtitle=Find the Best AI Model Access`],
+    images: [`${siteUrl}/og-image.png`],
   },
   alternates: {
     canonical: siteUrl,
