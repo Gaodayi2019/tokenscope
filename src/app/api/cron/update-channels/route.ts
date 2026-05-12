@@ -22,7 +22,8 @@ export async function GET(req: NextRequest) {
     channelsAdded: 0,
     modelsUpdated: 0,
     modelsAdded: 0,
-    discoveries: 0,
+    discoveriesTotal: 0,
+    discoveriesNew: 0,
     errors: [] as string[],
   };
 
@@ -213,20 +214,78 @@ async function syncModels(
   }
 }
 
-// ========== Discovery Logging ==========
+// ========== Discovery → channel_submissions ==========
 
 async function logDiscoveries(
   sb: ReturnType<typeof createServerClient>,
   discovery: ParsedDiscoveryResult,
   stats: Record<string, any>
 ) {
-  // For now, just count. Future: insert into channel_submissions for admin review.
-  const count = discovery.discoveredStations?.length || 0;
-  stats.discoveries += count;
+  const stations = discovery.discoveredStations || [];
+  if (stations.length === 0) return;
 
-  // Log to console for monitoring
-  for (const s of discovery.discoveredStations || []) {
-    console.log(`[cron] Discovered: ${s.name} — ${s.url}`);
+  // Fetch existing channel URLs for dedup
+  const { data: existingChannels } = await sb
+    .from("channels")
+    .select("url");
+  const existingUrls = new Set((existingChannels || []).map((c: any) => normalizeUrl(c.url)));
+
+  // Fetch existing submission URLs for dedup (avoid re-inserting pending ones)
+  const { data: existingSubs } = await sb
+    .from("channel_submissions")
+    .select("url")
+    .in("status", ["pending", "approved"]);
+  const existingSubUrls = new Set((existingSubs || []).map((s: any) => normalizeUrl(s.url)));
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const toInsert: any[] = [];
+
+  for (const s of stations) {
+    if (!s.url || !s.name) continue;
+    const normUrl = normalizeUrl(s.url);
+    if (existingUrls.has(normUrl)) {
+      console.log(`[cron] Discovery skip (already a channel): ${s.name} — ${s.url}`);
+      continue;
+    }
+    if (existingSubUrls.has(normUrl)) {
+      console.log(`[cron] Discovery skip (already submitted): ${s.name} — ${s.url}`);
+      continue;
+    }
+
+    toInsert.push({
+      name: s.name,
+      type: "relay",
+      description: s.notes || `Auto-discovered channel`,
+      url: s.url,
+      submitter_note: `Auto-discovered by cron at ${new Date().toISOString()}`,
+      status: "pending",
+    });
+    existingSubUrls.add(normUrl); // Prevent duplicates within this batch
+  }
+
+  if (toInsert.length > 0) {
+    // @ts-ignore
+    const { error } = await sb.from("channel_submissions").insert(toInsert);
+    if (error) {
+      console.error(`[cron] Discovery insert failed:`, error.message);
+      stats.errors.push(`Discovery insert: ${error.message}`);
+    } else {
+      console.log(`[cron] Inserted ${toInsert.length} new discoveries into channel_submissions`);
+    }
+  }
+
+  stats.discoveriesTotal += stations.length;
+  stats.discoveriesNew += toInsert.length;
+  console.log(`[cron] Discovery summary: ${stations.length} found, ${toInsert.length} new, ${stations.length - toInsert.length} duplicates`);
+}
+
+/** Normalize URL for dedup: lowercase, remove trailing slash, strip protocol */
+function normalizeUrl(url: string): string {
+  try {
+    const u = new URL(url);
+    return `${u.hostname.replace(/^www\./, '')}${u.pathname.replace(/\/+$/, '')}`.toLowerCase();
+  } catch {
+    return url.toLowerCase().replace(/\/+$/, '');
   }
 }
 
