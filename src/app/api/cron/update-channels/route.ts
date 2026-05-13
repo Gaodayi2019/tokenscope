@@ -231,6 +231,10 @@ async function logDiscoveries(
     .from("channels")
     .select("url");
   const existingUrls = new Set((existingChannels || []).map((c: any) => normalizeUrl(c.url)));
+  // Also add domain-level dedup to catch sub-pages of known channels
+  const existingDomains = new Set((existingChannels || []).map((c: any) => {
+    try { return new URL(c.url).hostname.replace(/^www\./, '').toLowerCase(); } catch { return ''; }
+  }));
 
   // Fetch existing submission URLs for dedup (avoid re-inserting pending ones)
   const { data: existingSubs } = await sb
@@ -252,8 +256,13 @@ async function logDiscoveries(
     }
 
     const normUrl = normalizeUrl(s.url);
+    const discDomain = (() => { try { return new URL(s.url).hostname.replace(/^www\./, '').toLowerCase(); } catch { return ''; } })();
     if (existingUrls.has(normUrl)) {
       console.log(`[cron] Discovery skip (already a channel): ${s.name} — ${s.url}`);
+      continue;
+    }
+    if (existingDomains.has(discDomain)) {
+      console.log(`[cron] Discovery skip (domain already in channels): ${s.name} — ${s.url}`);
       continue;
     }
     if (existingSubUrls.has(normUrl)) {
