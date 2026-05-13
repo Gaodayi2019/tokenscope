@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useI18n } from "@/i18n/context";
 import { AuthModal } from "@/components/AuthModal";
-import { supabase } from "@/lib/supabase";
+import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 
 export function Header() {
   const { locale, t, setLocale } = useI18n();
@@ -13,15 +13,17 @@ export function Header() {
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => setUser(session?.user ?? null));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+    const client = createSupabaseBrowserClient();
+    client.auth.getSession().then(({ data: { session } }) => setUser(session?.user ?? null));
+    const { data: { subscription } } = client.auth.onAuthStateChange((_e, session) => {
       setUser(session?.user ?? null);
     });
     return () => subscription.unsubscribe();
   }, []);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    const client = createSupabaseBrowserClient();
+    await client.auth.signOut();
     setUser(null);
   };
 
