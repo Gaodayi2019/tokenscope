@@ -1,7 +1,15 @@
-import { supabase } from "./supabase";
+import { createSupabaseBrowserClient } from "./supabase-browser";
 import type { Channel, ModelInfo } from "@/types";
+
+// Get a fresh browser client per call (SSR-safe, handles PKCE cookies correctly)
+function getClient() {
+  return createSupabaseBrowserClient();
+}
+
 // @ts-ignore — loosen types for insert operations
-const db: any = supabase;
+function getDb() {
+  return getClient() as any;
+}
 
 // ── Channels ──────────────────────────────────
 
@@ -12,7 +20,8 @@ export async function getChannels(filters?: {
   search?: string;
   sortBy?: string;
 }) {
-  let query = db.from("channels").select("*, models(*)").order("rating_overall", { ascending: false });
+  const client = getDb();
+  let query = client.from("channels").select("*, models(*)").order("rating_overall", { ascending: false });
 
   if (filters?.type) query = query.eq("type", filters.type);
   if (filters?.region) query = query.contains("region", [filters.region]);
@@ -25,7 +34,8 @@ export async function getChannels(filters?: {
 }
 
 export async function getChannelById(id: string) {
-  const { data, error } = await supabase
+  const client = getClient();
+  const { data, error } = await client
     .from("channels")
     .select("*, models(*)")
     .eq("id", id)
@@ -35,7 +45,8 @@ export async function getChannelById(id: string) {
 }
 
 export async function getFeaturedChannels(limit = 6) {
-  const { data, error } = await supabase
+  const client = getClient();
+  const { data, error } = await client
     .from("channels")
     .select("*, models(*)")
     .eq("featured", true)
@@ -48,7 +59,8 @@ export async function getFeaturedChannels(limit = 6) {
 // ── Models ────────────────────────────────────
 
 export async function getFreeModels() {
-  const { data, error } = await supabase
+  const client = getClient();
+  const { data, error } = await client
     .from("models")
     .select("*, channels(id, name, url, type)")
     .or("is_free.eq.true,channels.type.eq.free-model")
@@ -60,7 +72,8 @@ export async function getFreeModels() {
 // ── Reviews ───────────────────────────────────
 
 export async function getReviews(channelId: string) {
-  const { data, error } = await supabase
+  const client = getClient();
+  const { data, error } = await client
     .from("reviews")
     .select("*")
     .eq("channel_id", channelId)
@@ -74,10 +87,11 @@ export async function createReview(review: {
   ratings: { stability: number; speed: number; service: number; value: number };
   content: string;
 }) {
-  const { data: { user } } = await supabase.auth.getUser();
+  const client = getDb();
+  const { data: { user } } = await client.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
-  const { data, error } = await db.from("reviews").insert({
+  const { data, error } = await client.from("reviews").insert({
     channel_id: review.channelId,
     user_id: user.id,
     username: user.user_metadata?.display_name || user.email?.split("@")[0] || "Anonymous",
@@ -94,24 +108,35 @@ export async function createReview(review: {
 // ── Auth ──────────────────────────────────────
 
 export async function signUp(email: string, password: string) {
-  const { data, error } = await supabase.auth.signUp({ email, password });
+  const client = getClient();
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const { data, error } = await client.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: `${origin}/auth/callback`,
+    },
+  });
   if (error) throw error;
   return data;
 }
 
 export async function signIn(email: string, password: string) {
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const client = getClient();
+  const { data, error } = await client.auth.signInWithPassword({ email, password });
   if (error) throw error;
   return data;
 }
 
 export async function signOut() {
-  const { error } = await supabase.auth.signOut();
+  const client = getClient();
+  const { error } = await client.auth.signOut();
   if (error) throw error;
 }
 
 export async function resetPassword(email: string) {
-  const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+  const client = getClient();
+  const { data, error } = await client.auth.resetPasswordForEmail(email, {
     redirectTo: `${typeof window !== "undefined" ? window.location.origin : ""}/auth/reset-password`,
   });
   if (error) throw error;
@@ -119,7 +144,8 @@ export async function resetPassword(email: string) {
 }
 
 export async function signInWithProvider(provider: "github" | "google") {
-  const { data, error } = await supabase.auth.signInWithOAuth({
+  const client = getClient();
+  const { data, error } = await client.auth.signInWithOAuth({
     provider,
     options: {
       redirectTo: `${typeof window !== "undefined" ? window.location.origin : ""}/auth/callback`,
@@ -130,27 +156,33 @@ export async function signInWithProvider(provider: "github" | "google") {
 }
 
 export async function resendVerification(email: string) {
-  const { data, error } = await supabase.auth.resend({
+  const client = getClient();
+  const { data, error } = await client.auth.resend({
     type: "signup",
     email,
+    options: {
+      emailRedirectTo: `${typeof window !== "undefined" ? window.location.origin : ""}/auth/callback`,
+    },
   });
   if (error) throw error;
   return data;
 }
 
 export async function getCurrentUser() {
-  const { data: { user } } = await supabase.auth.getUser();
+  const client = getClient();
+  const { data: { user } } = await client.auth.getUser();
   return user;
 }
 
 export async function isAdmin(): Promise<boolean> {
   const user = await getCurrentUser();
   if (!user) return false;
-  const { data } = await db.from("profiles").select("role").eq("id", user.id).single();
+  const client = getDb();
+  const { data } = await client.from("profiles").select("role").eq("id", user.id).single();
   return data?.role === "admin";
 }
 
-// ── Mapper: DB row �?Channel type ─────────────
+// ── Mapper: DB row → Channel type ─────────────
 
 function mapChannelRow(row: any): Channel {
   return {
