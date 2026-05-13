@@ -216,6 +216,53 @@ const RELAY_ENDPOINTS = [
   { url: 'https://api.i7relay.com/v1/models', id: 'i7relay', name: 'i7Relay' },
 ];
 
+/** Parse daheiai.com — 200+ API relay stations directory */
+export async function parseDaheiai(): Promise<ParsedDiscoveryResult | null> {
+  try {
+    const html = await fetchHtml('https://api.daheiai.com', { timeoutMs: 20000 });
+
+    // Extract station links from HTML — the site has structured data
+    // Pattern: <a href="https://..." ...>station name</a> within station cards
+    const linkPattern = /<a[^>]+href="(https?:\/\/[^"]+)"[^>]*>([^<]+)<\/a>/gi;
+    const stations: Array<{ name: string; url: string; notes?: string }> = [];
+    const seen = new Set<string>();
+    let match;
+
+    while ((match = linkPattern.exec(html)) !== null) {
+      const url = match[1];
+      const name = match[2].trim();
+
+      // Skip navigation links, social links, non-API URLs
+      if (!name || name.length < 2) continue;
+      if (/^(首页|导航|登录|注册|关于|反馈|GitHub|Telegram|Twitter|QQ|微信| Discord)/i.test(name)) continue;
+      if (/\.(png|jpg|ico|css|js|svg)$/i.test(url)) continue;
+      if (/github\.com|t\.me|twitter\.com|jq.qq\.com/i.test(url)) continue;
+
+      const norm = normalizeUrlSimple(url);
+      if (seen.has(norm)) continue;
+      seen.add(norm);
+
+      stations.push({ name, url });
+    }
+
+    console.log(`[parseDaheiai] ${stations.length} stations from HTML`);
+    return stations.length > 0 ? { discoveredStations: stations } : null;
+  } catch (err: any) {
+    console.error('[parseDaheiai] Failed:', err.message);
+    return null;
+  }
+}
+
+/** Simple URL normalize for dedup within a single parser */
+function normalizeUrlSimple(url: string): string {
+  try {
+    const u = new URL(url);
+    return `${u.hostname.replace(/^www\./, '')}${u.pathname.replace(/\/+$/, '')}`.toLowerCase();
+  } catch {
+    return url.toLowerCase().replace(/\/+$/, '');
+  }
+}
+
 /** Run all parsers */
 export async function parseAllSources(): Promise<{
   channels: ParsedChannelData[];
@@ -234,7 +281,7 @@ export async function parseAllSources(): Promise<{
     if (result) channels.push(result);
   }
 
-  // Discovery
+  // Discovery — GitHub awesome lists
   const ra = await parseRelayAPIGitHub();
   if (ra) discoveries.push(ra);
 
@@ -244,9 +291,20 @@ export async function parseAllSources(): Promise<{
   const a2 = await parseAwesomeList('https://raw.githubusercontent.com/whataicc/ai-proxy/main/README.md');
   if (a2) discoveries.push(a2);
 
+  // New discovery sources
+  const a3 = await parseAwesomeList('https://raw.githubusercontent.com/yesoneapi/ai-proxy/main/README.md');
+  if (a3) discoveries.push(a3);
+
+  const a4 = await parseAwesomeList('https://raw.githubusercontent.com/mn-api/awesome-ai-proxy/main/README.md');
+  if (a4) discoveries.push(a4);
+
   // Price comparison
   const hv = await parseHvoyAi();
   if (hv) discoveries.push(hv);
+
+  // Daheiai directory — largest Chinese API relay directory
+  const dh = await parseDaheiai();
+  if (dh) discoveries.push(dh);
 
   console.log(`[parseAllSources] ${channels.length} channels, ${discoveries.length} discovery results`);
   return { channels, discoveries };
