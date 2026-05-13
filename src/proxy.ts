@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 
 // ============================================================
 // TokenScope Security Proxy
@@ -110,7 +111,7 @@ if (typeof globalThis !== "undefined") {
   if (_interval.unref) _interval.unref();
 }
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
   const userAgent = request.headers.get("user-agent") || "";
   const ip = getClientIP(request);
@@ -161,12 +162,43 @@ export function proxy(request: NextRequest) {
     });
   }
 
-  // ── 7. Add security headers to response ──
-  const response = NextResponse.next();
-  response.headers.set("X-Request-ID", crypto.randomUUID());
-  response.headers.set("X-Content-Type-Options", "nosniff");
+  // ── 7. Supabase Auth — refresh session cookies (required for PKCE flow) ──
+  let supabaseResponse = NextResponse.next({ request });
 
-  return response;
+  try {
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value }) =>
+              request.cookies.set(name, value)
+            );
+            supabaseResponse = NextResponse.next({ request });
+            cookiesToSet.forEach(({ name, value, options }) =>
+              supabaseResponse.cookies.set(name, value, options)
+            );
+          },
+        },
+      }
+    );
+
+    // Refresh session — this ensures the auth cookies are always up to date
+    await supabase.auth.getUser();
+  } catch (e) {
+    // Non-fatal: if Supabase client fails, continue with the request
+    console.error("Proxy: Supabase session refresh failed:", e);
+  }
+
+  // ── 8. Add security headers to response ──
+  supabaseResponse.headers.set("X-Request-ID", crypto.randomUUID());
+  supabaseResponse.headers.set("X-Content-Type-Options", "nosniff");
+
+  return supabaseResponse;
 }
 
 export const config = {
