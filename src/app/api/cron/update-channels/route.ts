@@ -295,10 +295,23 @@ function isLikelyApiProvider(url: string, name: string): boolean {
     const path = u.pathname.toLowerCase();
     const hostname = u.hostname.toLowerCase();
 
-    // Skip image files
-    if (/\.(png|jpg|jpeg|gif|svg|webp|ico)$/i.test(path)) return false;
+    // Skip image/chart files
+    if (/\.(png|jpg|jpeg|gif|svg|webp|ico|svg)$/i.test(path)) return false;
     // Skip document/markdown files
     if (/\.(md|pdf|doc|docx|txt)$/i.test(path)) return false;
+    // Skip model detail pages (e.g. /openai/gpt-4o-2024-11-20, /models/gpt-4o)
+    if (/^\/[^/]+\/[^/]+-\d{4}/.test(path)) return false; // org/model-date pattern
+    if (/^\/models\//.test(path)) return false;
+    // Skip registration pages with affiliate params
+    if (/\/register\?/.test(path) && /aff=/.test(u.search)) return false;
+    // Skip hvoy.ai relay redirect links (not actual provider URLs)
+    if (/hvoy\.ai\/relaySite/.test(url)) return false;
+    // Skip star-history.com chart URLs
+    if (/star-history\.com/.test(hostname)) return false;
+    // Skip dashboard/demo paths that aren't the main site
+    if (/^\/(dashboard|demo|admin|login|signup|register|pricing|docs|blog|wiki|help|support|tutorial|guide|changelog|news|models)\/?$/i.test(path) && path !== '/') return false;
+    // Skip subpages of known platforms that are already channels
+    if (/openrouter\.ai\/[^/]+\//.test(url) && !/api\.openrouter\.ai/.test(url)) return false;
     // Skip common non-API path patterns
     if (/^\/(docs|blog|wiki|help|support|tutorial|guide|changelog|news)\//i.test(path)) return false;
     // Skip GitHub repos (not actual API endpoints) — but allow github.io pages
@@ -309,6 +322,10 @@ function isLikelyApiProvider(url: string, name: string): boolean {
     if (/(twitter\.com|x\.com|facebook\.com|reddit\.com|weibo\.com|zhihu\.com)$/i.test(hostname)) return false;
     // Skip if name looks like a tutorial/guide (Chinese)
     if (/(教程|指南|配置|推荐|排行|评测|对比|测评|架构|原理|入门)/.test(name)) return false;
+    // Skip if name starts with ! (markdown image syntax)
+    if (/^!/.test(name)) return false;
+    // Skip if name is a URL itself (poorly parsed link)
+    if (/^https?:\/\//.test(name)) return false;
 
     return true;
   } catch {
