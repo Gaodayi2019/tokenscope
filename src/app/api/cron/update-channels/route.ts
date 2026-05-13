@@ -8,9 +8,11 @@ import type { ParsedChannelData, ParsedDiscoveryResult } from "@/lib/channel-par
 // Triggered by Vercel cron (vercel.json) or manual curl with CRON_SECRET
 
 export async function GET(req: NextRequest) {
-  // Verify cron secret
+  // Verify cron request — allow Vercel cron OR manual with CRON_SECRET
+  const isVercelCron = req.headers.get("x-vercel-cron") === "true";
   const authHeader = req.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  const hasValidSecret = authHeader === `Bearer ${process.env.CRON_SECRET}`;
+  if (!isVercelCron && !hasValidSecret) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
