@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import { useI18n } from "@/i18n/context";
 
 export default function ResetPasswordPage() {
@@ -14,7 +14,8 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     // After clicking the email reset link, Supabase redirects here with a valid session
-    supabase.auth.getSession().then(({ data }) => {
+    const client = createSupabaseBrowserClient();
+    client.auth.getSession().then(({ data }) => {
       setHasSession(!!data.session);
     });
   }, []);
@@ -32,7 +33,8 @@ export default function ResetPasswordPage() {
     setLoading(true);
     setResult(null);
 
-    const { error } = await supabase.auth.updateUser({ password });
+    const client = createSupabaseBrowserClient();
+    const { error } = await client.auth.updateUser({ password });
 
     if (error) {
       setResult({ type: "error", message: error.message });
