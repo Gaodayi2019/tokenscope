@@ -1,23 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ChannelCard } from "@/components/ChannelCard";
 import { RankingBoard } from "@/components/RankingBoard";
 import { useI18n } from "@/i18n/context";
-import { useSiteStats } from "@/lib/useData";
-import { channels as staticChannels } from "@/data/channels";
-
-const featuredChannels = staticChannels.filter((c) => c.featured);
-const freeChannels = staticChannels.filter(
-  (c) => c.type === "free-model" || c.freeTier?.available
-);
+import { useSiteStats, useChannels } from "@/lib/useData";
 
 export default function HomePage() {
   const { t, locale } = useI18n();
   const { stats } = useSiteStats();
+  const { channels } = useChannels(); // dynamic data from API
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Derive all lists from dynamic data
+  const featuredChannels = useMemo(
+    () =>
+      channels
+        .filter((c) => c.featured)
+        .concat(
+          // If no featured flag, pick top-rated channels
+          channels
+            .filter((c) => !c.featured && c.ratings?.overall)
+            .sort((a, b) => (b.ratings?.overall || 0) - (a.ratings?.overall || 0))
+        )
+        .slice(0, 6),
+    [channels]
+  );
+
+  const freeChannels = useMemo(
+    () =>
+      channels.filter(
+        (c) => c.type === "free-model" || c.freeTier?.available
+      ).slice(0, 6),
+    [channels]
+  );
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -137,7 +155,7 @@ export default function HomePage() {
           </div>
           <p className="mt-1 text-sm text-muted">{t.home.rankingsDesc}</p>
           <div className="mt-5">
-            <RankingBoard channels={staticChannels} />
+            <RankingBoard channels={channels} />
           </div>
         </section>
 
@@ -160,7 +178,7 @@ export default function HomePage() {
                 <div className="text-3xl">{cat.icon}</div>
                 <h3 className="mt-2 font-semibold text-foreground">{cat.type}</h3>
                 <p className="mt-0.5 text-xs text-muted">{cat.desc}</p>
-                <p className="mt-2 text-xs font-medium text-primary">{staticChannels.filter(c => c.type === cat.filterType).length} {t.home.channelCount}</p>
+                <p className="mt-2 text-xs font-medium text-primary">{channels.filter(c => c.type === cat.filterType).length} {t.home.channelCount}</p>
               </a>
             ))}
           </div>
