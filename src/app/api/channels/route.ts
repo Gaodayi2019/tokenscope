@@ -63,17 +63,51 @@ function transformModel(m: any): any {
   };
 }
 
-// GET /api/channels - fetch all channels
-export async function GET() {
-  const { data, error } = await supabase
+// GET /api/channels - fetch channels with server-side filtering
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const type = searchParams.get("type");
+  const region = searchParams.get("region");
+  const freeOnly = searchParams.get("freeOnly") === "true";
+  const search = searchParams.get("search");
+  const sortBy = searchParams.get("sortBy") || "rating";
+  const limit = Math.min(parseInt(searchParams.get("limit") || "200"), 500);
+  const offset = parseInt(searchParams.get("offset") || "0");
+
+  // Build query with server-side filters
+  let query = supabase
     .from("channels")
-    .select("*, models(*)")
-    .order("rating_overall", { ascending: false });
+    .select("*, models(*)", { count: "exact" })
+    .order("rating_overall", { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (type) query = query.eq("type", type);
+  if (region) query = query.contains("region", [region]);
+  if (freeOnly) query = query.eq("free_tier_available", true);
+  if (search) query = query.textSearch("name", search);
+
+  const { data, error, count } = await query;
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  const channels = (data || []).map(transformChannel);
-  return NextResponse.json(channels);
+  let channels = (data || []).map(transformChannel);
+
+  // Client-side sort for fields not directly in DB or needing computed values
+  if (sortBy === "price-low") {
+    channels.sort((a: any, b: any) => {
+      const pa = Math.min(...a.models.filter((m: any) => m.inputPricePer1M != null).map((m: any) => m.inputPricePer1M));
+      const pb = Math.min(...b.models.filter((m: any) => m.inputPricePer1M != null).map((m: any) => m.inputPricePer1M));
+      return pa - pb;
+    });
+  } else if (sortBy === "latency") {
+    channels.sort((a: any, b: any) => a.stats.avgLatency - b.stats.avgLatency);
+  } else if (sortBy === "reviews") {
+    channels.sort((a: any, b: any) => b.ratings.count - a.ratings.count);
+  } else if (sortBy === "newest") {
+    channels.sort((a: any, b: any) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+  }
+
+  return NextResponse.json({ channels, total: count || channels.length });
 }
 
 // POST /api/channels/submit - user submits a new channel (goes to pending)
