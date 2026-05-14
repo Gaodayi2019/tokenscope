@@ -51,7 +51,10 @@ async function fetchChannelsFromDB(filters?: {
     const res = await fetch(`/api/channels?${params.toString()}`);
     if (!res.ok) throw new Error("API error");
     const data = await res.json();
-    if (Array.isArray(data) && data.length > 0) return data;
+    
+    // Support both old array format and new { channels, total } format
+    const channels = Array.isArray(data) ? data : (data.channels || []);
+    if (channels.length > 0) return channels;
     throw new Error("empty");
   } catch {
     // Fallback to static data
@@ -95,21 +98,29 @@ async function fetchChannelById(id: string): Promise<Channel | null> {
 
 async function fetchSiteStats(): Promise<SiteStats> {
   try {
-    // Count from DB if possible, otherwise static
-    const res = await fetch("/api/channels");
-    if (!res.ok) throw new Error("API error");
-    const data = await res.json();
-    if (Array.isArray(data)) {
-      const totalModels = data.reduce((sum: number, ch: Channel) => sum + (ch.models?.length || 0), 0);
-      return {
-        channels: data.length,
-        models: totalModels,
-        reviews: data.reduce((sum: number, ch: Channel) => sum + (ch.ratings?.count || 0), 0),
-        users: staticSiteStats.users, // Users count from auth, keep static for now
-      };
+    // Use lightweight stats endpoint
+    const res = await fetch("/api/stats");
+    if (res.ok) {
+      const data = await res.json();
+      return data;
     }
-    throw new Error("bad data");
+    throw new Error("stats API error");
   } catch {
+    // Fallback: count from channels API
+    try {
+      const res = await fetch("/api/channels?limit=1");
+      if (res.ok) {
+        const data = await res.json();
+        const channels = Array.isArray(data) ? data : (data.channels || []);
+        const total = Array.isArray(data) ? data.length : (data.total || 0);
+        return {
+          channels: total,
+          models: channels.reduce((sum: number, ch: Channel) => sum + (ch.models?.length || 0), 0),
+          reviews: channels.reduce((sum: number, ch: Channel) => sum + (ch.ratings?.count || 0), 0),
+          users: staticSiteStats.users,
+        };
+      }
+    } catch {}
     return staticSiteStats;
   }
 }
