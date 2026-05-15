@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BreadcrumbJsonLd } from "@/components/JsonLd";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://token-scope.com";
 
@@ -48,10 +49,41 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function ChannelDetailLayout({
+export default async function ChannelDetailLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ id: string }>;
 }) {
-  return children;
+  const { id } = await params;
+  let channelName = id;
+  try {
+    const { createClient } = await import("@supabase/supabase-js");
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+    const { data } = await supabase
+      .from("channels")
+      .select("name")
+      .eq("id", id)
+      .single();
+    if (data?.name) channelName = data.name;
+  } catch {
+    // fallback
+  }
+
+  return (
+    <>
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: siteUrl },
+          { name: "Channels", url: `${siteUrl}/channels` },
+          { name: channelName, url: `${siteUrl}/channel/${id}` },
+        ]}
+      />
+      {children}
+    </>
+  );
 }
