@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { I18nProvider } from "@/i18n/context";
+import { WebsiteJsonLd, OrganizationJsonLd, SoftwareAppJsonLd } from "@/components/JsonLd";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://token-scope.com";
 
@@ -29,6 +30,9 @@ export const metadata: Metadata = {
     "API proxy",
     "free LLM",
     "AI gateway",
+    "AI API 中转站",
+    "API 比价",
+    "免费 AI API",
   ],
   authors: [{ name: "TokenScope" }],
   creator: "TokenScope",
@@ -98,6 +102,9 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
+        <WebsiteJsonLd />
+        <OrganizationJsonLd />
+        <SoftwareAppJsonLd />
       </head>
       <body className="min-h-screen bg-bg text-foreground antialiased">
         <I18nProvider>{children}</I18nProvider>
