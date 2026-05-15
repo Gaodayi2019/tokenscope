@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BreadcrumbJsonLd } from "@/components/JsonLd";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://token-scope.com";
 
@@ -22,5 +23,15 @@ export default function FreeLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <>
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: siteUrl },
+          { name: "Free Models", url: `${siteUrl}/free` },
+        ]}
+      />
+      {children}
+    </>
+  );
 }
